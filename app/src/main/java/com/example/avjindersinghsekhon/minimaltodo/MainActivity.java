@@ -30,6 +30,12 @@ import android.widget.TextView;
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.amulyakhare.textdrawable.util.ColorGenerator;
 
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import org.json.JSONException;
 
 import java.io.IOException;
@@ -68,6 +74,9 @@ public class MainActivity extends AppCompatActivity {
             "Get car washed",
             "Get my dry cleaning"
     };
+    // /Users/[myusername]/Library/Android/sdk/extras/google/google_play_services/docs/reference/ Firebase Javadoc
+    private DatabaseReference databaseReference;
+
 
 
 
@@ -184,6 +193,9 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(CHANGE_OCCURED, false);
         editor.apply();
+
+        // /Users/[myusername]/Library/Android/sdk/extras/google/google_play_services/docs/reference/ Firebase Javadocs
+        databaseReference = FirebaseDatabase.getInstance().getReference();
 
         storeRetrieveData = new StoreRetrieveData(this, FILENAME);
         mToDoItemsArrayList =  getLocallyStoredData(storeRetrieveData);
@@ -405,6 +417,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void addToDataStore(ToDoItem item){
+        databaseReference.push().setValue(item);
         mToDoItemsArrayList.add(item);
         adapter.notifyItemInserted(mToDoItemsArrayList.size() - 1);
 

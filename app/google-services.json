@@ -1,1 +1,42 @@
-{"project_info":{"project_id":"minimal-e817","project_number":"155600168514","name":"Minimal"},"client":[{"client_info":{"client_id":"android:com.avjindersekhon.minimal","client_type":1,"android_client_info":{"package_name":"com.avjindersekhon.minimal"}},"oauth_client":[],"api_key":[],"services":{"analytics_service":{"status":1},"cloud_messaging_service":{"status":1,"apns_config":[]},"appinvite_service":{"status":1,"other_platform_oauth_client":[]},"google_signin_service":{"status":1},"ads_service":{"status":1}}},{"client_info":{"client_id":"android:com.avjindersekhon.minimaltodo","client_type":1,"android_client_info":{"package_name":"com.avjindersekhon.minimaltodo"}},"oauth_client":[],"api_key":[],"services":{"analytics_service":{"status":2,"analytics_property":{"tracking_id":"UA-00000000-0"}},"cloud_messaging_service":{"status":1,"apns_config":[]},"appinvite_service":{"status":1,"other_platform_oauth_client":[]},"google_signin_service":{"status":1},"ads_service":{"status":1}}}],"client_info":[],"ARTIFACT_VERSION":"1"}
+{
+  "project_info": {
+    "project_number": "476771970033",
+    "firebase_url": "https://checklist-30aa9.firebaseio.com",
+    "project_id": "checklist-30aa9",
+    "storage_bucket": "checklist-30aa9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:476771970033:android:833b01687e467301",
+        "android_client_info": {
+          "package_name": "com.philschatz.checklist"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "476771970033-3olflhrgamcmv2jc6rjdbccp761dljl4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDKncn3Ebz1K-Zb0lx-PQJxmEu283JMtwI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
