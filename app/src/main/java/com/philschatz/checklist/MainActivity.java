@@ -83,12 +83,12 @@ public class MainActivity extends AppCompatActivity {
     public static ArrayList<ToDoItem> getLocallyStoredData(StoreRetrieveData storeRetrieveData){
         ArrayList<ToDoItem> items = null;
 
-        try {
-            items  = storeRetrieveData.loadFromFile();
-
-        } catch (IOException | JSONException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            items  = storeRetrieveData.loadFromFile();
+//
+//        } catch (IOException | JSONException e) {
+//            e.printStackTrace();
+//        }
 
         if(items == null){
             items = new ArrayList<>();
@@ -137,15 +137,16 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREF_DATA_SET_CHANGED, MODE_PRIVATE);
         if(sharedPreferences.getBoolean(CHANGE_OCCURED, false)){
 
-            mToDoItemsArrayList = getLocallyStoredData(storeRetrieveData);
-            adapter = new BasicListAdapter(mToDoItemsArrayList);
-            mRecyclerView.setAdapter(adapter);
-            setAlarms();
-
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putBoolean(CHANGE_OCCURED, false);
-//            editor.commit();
-            editor.apply();
+            throw new RuntimeException("adjkhaskjdhs");
+//            mToDoItemsArrayList = new ArrayList<ToDoItem>(); // getLocallyStoredData(storeRetrieveData);
+//            adapter = new BasicListAdapter(mToDoItemsArrayList);
+//            mRecyclerView.setAdapter(adapter);
+//            setAlarms();
+//
+//            SharedPreferences.Editor editor = sharedPreferences.edit();
+//            editor.putBoolean(CHANGE_OCCURED, false);
+////            editor.commit();
+//            editor.apply();
 
 
         }
@@ -200,19 +201,42 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 ToDoItem item = dataSnapshot.getValue(ToDoItem.class);
+                item.firebaseKey = dataSnapshot.getKey();
+
                 mToDoItemsArrayList.add(item);
                 adapter.notifyItemInserted(mToDoItemsArrayList.size() - 1);
             }
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                ToDoItem item = dataSnapshot.getValue(ToDoItem.class);
+                item.firebaseKey = dataSnapshot.getKey();
 //                getAllTask(dataSnapshot);
+                //adapter.notifyItemChanged();
+
+                int position = mToDoItemsArrayList.indexOf(item);
+                if (position < 0) {
+                    throw new RuntimeException("BUG: could not find item in list");
+                }
+                mToDoItemsArrayList.set(position, item);
+                adapter.notifyItemChanged(position, item);
             }
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
 //                taskDeletion(dataSnapshot);
+                ToDoItem item = dataSnapshot.getValue(ToDoItem.class);
+                item.firebaseKey = dataSnapshot.getKey();
+//                getAllTask(dataSnapshot);
+                //adapter.notifyItemChanged();
+
+                int position = mToDoItemsArrayList.indexOf(item);
+                mToDoItemsArrayList.remove(position);
+                adapter.notifyItemRemoved(position);
             }
             @Override
             public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                ToDoItem item = dataSnapshot.getValue(ToDoItem.class);
+                item.firebaseKey = dataSnapshot.getKey();
+                // PHIL : this needs to use the float field to determine the order
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -224,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
 
         storeRetrieveData = new StoreRetrieveData(this, FILENAME);
         mToDoItemsArrayList =  getLocallyStoredData(storeRetrieveData);
-        adapter = new BasicListAdapter(mToDoItemsArrayList);
+        adapter = new BasicListAdapter(databaseReference, mToDoItemsArrayList);
         setAlarms();
 
 
@@ -403,16 +427,19 @@ public class MainActivity extends AppCompatActivity {
 
             for(int i = 0; i<mToDoItemsArrayList.size();i++){
                 if(item.getIdentifier().equals(mToDoItemsArrayList.get(i).getIdentifier())){
-                    mToDoItemsArrayList.set(i, item);
-                    existed = true;
-                    adapter.notifyDataSetChanged();
+
+//                    mToDoItemsArrayList.set(i, item);
+//                    existed = true;
+//                    adapter.notifyDataSetChanged();
+//                    DatabaseReference child = databaseReference.child((item.firebaseKey));
+//                    child.setValue(item);
                     break;
                 }
             }
-            if(!existed) {
-                addToDataStore(item);
-            }
-
+//            if(!existed) {
+//                addToDataStore(item);
+//            }
+            addToDataStore(item);
 
         }
     }
@@ -442,7 +469,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void addToDataStore(ToDoItem item){
-        databaseReference.push().setValue(item);
+        // append a new item or edit an existing item
+        if (item.firebaseKey != null) {
+            databaseReference.child(item.firebaseKey).setValue(item);
+        } else {
+            databaseReference.push().setValue(item);
+        }
+
 //        mToDoItemsArrayList.add(item)
 //        adapter.notifyItemInserted(mToDoItemsArrayList.size() - 1);
 
@@ -460,6 +493,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public class BasicListAdapter extends RecyclerView.Adapter<BasicListAdapter.ViewHolder> implements ItemTouchHelperClass.ItemTouchHelperAdapter{
+        private DatabaseReference databaseReference;
         private ArrayList<ToDoItem> items;
 
         @Override
@@ -482,8 +516,13 @@ public class MainActivity extends AppCompatActivity {
             //Remove this line if not using Google Analytics
             app.send(this, "Action", "Swiped Todo Away");
 
-            mJustDeletedToDoItem =  items.remove(position);
+//            mJustDeletedToDoItem =  items.remove(position);
+//            mIndexOfDeletedToDoItem = position;
+            mJustDeletedToDoItem = items.get(position);
             mIndexOfDeletedToDoItem = position;
+            DatabaseReference child = databaseReference.child(mJustDeletedToDoItem.firebaseKey);
+            child.removeValue();
+
             Intent i = new Intent(MainActivity.this,TodoNotificationService.class);
             deleteAlarm(i, mJustDeletedToDoItem.getIdentifier().hashCode());
             notifyItemRemoved(position);
@@ -497,14 +536,16 @@ public class MainActivity extends AppCompatActivity {
 
                             //Comment the line below if not using Google Analytics
                             app.send(this, "Action", "UNDO Pressed");
-                            items.add(mIndexOfDeletedToDoItem, mJustDeletedToDoItem);
+//                            items.add(mIndexOfDeletedToDoItem, mJustDeletedToDoItem);
                             if(mJustDeletedToDoItem.getToDoDate()!=null && mJustDeletedToDoItem.hasReminder()){
                                 Intent i = new Intent(MainActivity.this, TodoNotificationService.class);
                                 i.putExtra(TodoNotificationService.TODOTEXT, mJustDeletedToDoItem.getToDoText());
                                 i.putExtra(TodoNotificationService.TODOUUID, mJustDeletedToDoItem.getIdentifier());
                                 createAlarm(i, mJustDeletedToDoItem.getIdentifier().hashCode(), mJustDeletedToDoItem.getToDoDate().getTime());
                             }
-                            notifyItemInserted(mIndexOfDeletedToDoItem);
+                            // TODO: PHIL Insertion order should be a float so we can always insert between 2 items
+                            databaseReference.push().setValue(mJustDeletedToDoItem);
+//                            notifyItemInserted(mIndexOfDeletedToDoItem);
                         }
                     }).show();
         }
@@ -585,8 +626,8 @@ public class MainActivity extends AppCompatActivity {
             return items.size();
         }
 
-        BasicListAdapter(ArrayList<ToDoItem> items){
-
+        BasicListAdapter(DatabaseReference databaseReference, ArrayList<ToDoItem> items){
+            this.databaseReference = databaseReference;
             this.items = items;
         }
 

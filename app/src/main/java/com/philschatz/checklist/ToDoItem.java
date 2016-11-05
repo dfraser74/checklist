@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.UUID;
 
 public class ToDoItem implements Serializable{
+    public String firebaseKey;
     private String mToDoText;
     private boolean mHasReminder;
 //    private Date mLastEdited;
@@ -98,6 +99,20 @@ public class ToDoItem implements Serializable{
 
     public UUID getIdentifier(){
         return mTodoIdentifier;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof ToDoItem) {
+            return this.firebaseKey.equals(((ToDoItem) o).firebaseKey);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public final int hashCode() {
+        return this.firebaseKey.hashCode();
     }
 }
 
