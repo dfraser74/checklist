@@ -1,4 +1,4 @@
-package com.example.avjindersinghsekhon.minimaltodo;
+package com.philschatz.checklist;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton mAddToDoItemFAB;
     private ArrayList<ToDoItem> mToDoItemsArrayList;
     private CoordinatorLayout mCoordLayout;
-    public static final String TODOITEM = "com.avjindersinghsekhon.com.avjindersinghsekhon.minimaltodo.MainActivity";
+    public static final String TODOITEM = "com.philschatz.checklist.MainActivity";
     private BasicListAdapter adapter;
     private static final int REQUEST_ID_TODO_ITEM = 100;
     private ToDoItem mJustDeletedToDoItem;
@@ -196,6 +196,31 @@ public class MainActivity extends AppCompatActivity {
 
         // /Users/[myusername]/Library/Android/sdk/extras/google/google_play_services/docs/reference/ Firebase Javadocs
         databaseReference = FirebaseDatabase.getInstance().getReference();
+        databaseReference.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                ToDoItem item = dataSnapshot.getValue(ToDoItem.class);
+                mToDoItemsArrayList.add(item);
+                adapter.notifyItemInserted(mToDoItemsArrayList.size() - 1);
+            }
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+//                getAllTask(dataSnapshot);
+            }
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+//                taskDeletion(dataSnapshot);
+            }
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+
+
+
 
         storeRetrieveData = new StoreRetrieveData(this, FILENAME);
         mToDoItemsArrayList =  getLocallyStoredData(storeRetrieveData);
@@ -418,8 +443,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void addToDataStore(ToDoItem item){
         databaseReference.push().setValue(item);
-        mToDoItemsArrayList.add(item);
-        adapter.notifyItemInserted(mToDoItemsArrayList.size() - 1);
+//        mToDoItemsArrayList.add(item)
+//        adapter.notifyItemInserted(mToDoItemsArrayList.size() - 1);
 
     }
 
@@ -652,5 +677,3 @@ public class MainActivity extends AppCompatActivity {
 //    }
 
 }
-
-

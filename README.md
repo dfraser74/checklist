@@ -19,7 +19,7 @@ A fully Material ToDo app with minimal features, just enough to be useful.
 <img src="https://github.com/avjinder/Toodle/blob/master/screenshots/screenshot_todo_snooze.png" height="400px"/>
 
 ##Download
-<a href="https://play.google.com/store/apps/details?id=com.avjindersinghsekhon.minimaltodo">
+<a href="https://play.google.com/store/apps/details?id=com.philschatz.checklist">
   <img alt="Get it on Google Play"
        src="https://developer.android.com/images/brand/en_generic_rgb_wo_45.png" />
 </a>

@@ -1,4 +1,4 @@
-package com.example.avjindersinghsekhon.minimaltodo;
+package com.philschatz.checklist;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;

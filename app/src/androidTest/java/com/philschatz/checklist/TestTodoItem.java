@@ -21,7 +21,7 @@
  *
  */
 
-package com.example.avjindersinghsekhon.minimaltodo;
+package com.philschatz.checklist;
 
 import junit.framework.TestCase;
 

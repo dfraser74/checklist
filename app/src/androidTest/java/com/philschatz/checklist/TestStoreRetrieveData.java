@@ -21,7 +21,7 @@
  *
  */
 
-package com.example.avjindersinghsekhon.minimaltodo;
+package com.philschatz.checklist;
 
 import android.content.Context;
 import android.test.ActivityUnitTestCase;

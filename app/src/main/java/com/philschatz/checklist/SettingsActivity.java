@@ -1,4 +1,4 @@
-package com.example.avjindersinghsekhon.minimaltodo;
+package com.philschatz.checklist;
 
 import android.app.FragmentManager;
 import android.graphics.Color;

@@ -19,8 +19,8 @@
     substitute for the full length canonical Activity name in screen view hit. In order to
     specify an alternate screen name use an <screenName> element, with the name attribute
     specifying the canonical name, and the value the alias to use instead. -->
-    <screenName name="com.avjindersinghsekhon.minimaltodo.MainActivity">Main Activity</screenName>
-    <screenName name="com.avjindersinghsekhon.minimaltodo.AddToDoActivity">Add ToDo Activity</screenName>
-    <screenName name="com.avjindersinghsekhon.minimaltodo.SettingsActivity">Settings Activity</screenName>
+    <screenName name="com.philschatz.checklist.MainActivity">Main Activity</screenName>
+    <screenName name="com.philschatz.checklist.AddToDoActivity">Add ToDo Activity</screenName>
+    <screenName name="com.philschatz.checklist.SettingsActivity">Settings Activity</screenName>
 
 </resources>

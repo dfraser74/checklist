@@ -1,4 +1,4 @@
-package com.example.avjindersinghsekhon.minimaltodo;
+package com.philschatz.checklist;
 
 import android.content.Intent;
 import android.content.pm.PackageInfo;
