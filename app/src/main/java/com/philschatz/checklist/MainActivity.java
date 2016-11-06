@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -16,6 +17,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -64,9 +66,9 @@ public class MainActivity extends AppCompatActivity {
     public static final String TODOITEM_ID = "com.philschatz.checklist.MainActivity.theToDoItemId";
     private ToDoItemAdapter adapter;
     private static final int REQUEST_ID_TODO_ITEM = 100;
-    private ToDoItem mJustDeletedToDoItem;
-    private String mJustDeletedToDoItemId;
-    private int mIndexOfDeletedToDoItem;
+    private ToDoItem mJustCompletedToDoItem;
+    private String mJustCompletedToDoItemId;
+    private int mJustCompletedToDoItemIndex;
     public static final String DATE_TIME_FORMAT_12_HOUR = "MMM d, yyyy  h:mm a";
     public static final String DATE_TIME_FORMAT_24_HOUR = "MMM d, yyyy  k:mm";
     public static final String FILENAME = "todoitems.json";
@@ -597,37 +599,43 @@ public class MainActivity extends AppCompatActivity {
             //Remove this line if not using Google Analytics
             app.send(this, "Action", "Swiped Todo Away");
 
-//            mJustDeletedToDoItem =  items.remove(position);
-//            mIndexOfDeletedToDoItem = position;
-            mJustDeletedToDoItem = mToDoItems.get(position);
-            mJustDeletedToDoItemId = mToDoItemIds.get(position);
-            mIndexOfDeletedToDoItem = position;
-            DatabaseReference child = databaseReference.child(mJustDeletedToDoItemId);
-            child.removeValue();
+//            mJustCompletedToDoItem =  items.remove(position);
+//            mJustCompletedToDoItemIndex = position;
+            mJustCompletedToDoItem = mToDoItems.get(position);
+            mJustCompletedToDoItemId = mToDoItemIds.get(position);
+            mJustCompletedToDoItemIndex = position;
+            DatabaseReference child = databaseReference.child(mJustCompletedToDoItemId);
+            mJustCompletedToDoItem.setCompletedAt(new Date());
+//            child.removeValue();
+            child.setValue(mJustCompletedToDoItem);
 
             Intent i = new Intent(MainActivity.this,TodoNotificationService.class);
-            deleteAlarm(i, mJustDeletedToDoItem.getIdentifier().hashCode());
+            deleteAlarm(i, mJustCompletedToDoItem.getIdentifier().hashCode());
             notifyItemRemoved(position);
 
-//            String toShow = (mJustDeletedToDoItem.getTitle().length()>20)?mJustDeletedToDoItem.getTitle().substring(0, 20)+"...":mJustDeletedToDoItem.getTitle();
+//            String toShow = (mJustCompletedToDoItem.getTitle().length()>20)?mJustCompletedToDoItem.getTitle().substring(0, 20)+"...":mJustCompletedToDoItem.getTitle();
             String toShow = "Todo";
-            Snackbar.make(mCoordLayout, "Deleted "+toShow,Snackbar.LENGTH_SHORT)
+            Snackbar.make(mCoordLayout, "Completed "+toShow,Snackbar.LENGTH_SHORT)
                     .setAction("UNDO", new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
 
                             //Comment the line below if not using Google Analytics
                             app.send(this, "Action", "UNDO Pressed");
-//                            items.add(mIndexOfDeletedToDoItem, mJustDeletedToDoItem);
-                            if(mJustDeletedToDoItem.getRemindAt()!=null){
+//                            items.add(mJustCompletedToDoItemIndex, mJustCompletedToDoItem);
+                            if(mJustCompletedToDoItem.getRemindAt()!=null){
                                 Intent i = new Intent(MainActivity.this, TodoNotificationService.class);
-                                i.putExtra(TodoNotificationService.TODOTEXT, mJustDeletedToDoItem.getTitle());
-                                i.putExtra(TodoNotificationService.TODOUUID, mJustDeletedToDoItem.getIdentifier());
-                                createAlarm(i, mJustDeletedToDoItem.getIdentifier().hashCode(), mJustDeletedToDoItem.getRemindAt().getTime());
+                                i.putExtra(TodoNotificationService.TODOTEXT, mJustCompletedToDoItem.getTitle());
+                                i.putExtra(TodoNotificationService.TODOUUID, mJustCompletedToDoItem.getIdentifier());
+                                createAlarm(i, mJustCompletedToDoItem.getIdentifier().hashCode(), mJustCompletedToDoItem.getRemindAt().getTime());
                             }
                             // TODO: PHIL Insertion order should be a float so we can always insert between 2 items
-                            databaseReference.push().setValue(mJustDeletedToDoItem);
-//                            notifyItemInserted(mIndexOfDeletedToDoItem);
+//                            databaseReference.push().setValue(mJustCompletedToDoItem);
+                            DatabaseReference child = databaseReference.child(mJustCompletedToDoItemId);
+                            mJustCompletedToDoItem.setCompletedAt(null);
+                            child.setValue(mJustCompletedToDoItem);
+
+//                            notifyItemInserted(mJustCompletedToDoItemIndex);
                         }
                     }).show();
         }
@@ -661,17 +669,24 @@ public class MainActivity extends AppCompatActivity {
             }
             holder.linearLayout.setBackgroundColor(bgColor);
 
-            if(item.getRemindAt()!=null){
+            if(item.getRemindAt()!=null || item.getCompletedAt() !=null){
                 holder.mToDoTextview.setMaxLines(1);
                 holder.mTimeTextView.setVisibility(View.VISIBLE);
 //                holder.mToDoTextview.setVisibility(View.GONE);
-            }
-            else{
+            } else{
                 holder.mTimeTextView.setVisibility(View.GONE);
                 holder.mToDoTextview.setMaxLines(2);
             }
             holder.mToDoTextview.setText(item.getTitle());
             holder.mToDoTextview.setTextColor(todoTextColor);
+            if (item.getCompletedAt() != null) {
+                holder.mToDoTextview.setTextColor(Color.LTGRAY);
+                holder.mTimeTextView.setTextColor(Color.LTGRAY);
+            }
+            if (item.getCompletedAt() != null) {
+                holder.mToDoTextview.setPaintFlags(holder.mToDoTextview.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            }
+
 //            holder.mColorTextView.setBackgroundColor(Color.parseColor(item.getTodoColor()));
 
 //            TextDrawable myDrawable = TextDrawable.builder().buildRoundRect(item.getTitle().substring(0,1),Color.RED, 10);
@@ -683,6 +698,7 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //            Log.d("OskarSchindler", "Color: "+item.getTodoColor());
 
+
             String firstLetter = item.getTitle().substring(0,1);
             // Use the first letter as the hash for the color
             int color = ColorGenerator.MATERIAL.getColor(firstLetter);
@@ -693,16 +709,16 @@ public class MainActivity extends AppCompatActivity {
                     .endConfig()
                     .buildRound(firstLetter, color);
 
-//            TextDrawable myDrawable = TextDrawable.builder().buildRound(item.getTitle().substring(0,1),holder.color);
             holder.mColorImageView.setImageDrawable(myDrawable);
-            if(item.getRemindAt()!=null){
-                String timeToShow;
-                if(android.text.format.DateFormat.is24HourFormat(MainActivity.this)){
-                    timeToShow = AddToDoActivity.formatDate(MainActivity.DATE_TIME_FORMAT_24_HOUR, item.getRemindAt());
-                }
-                else{
-                    timeToShow = AddToDoActivity.formatDate(MainActivity.DATE_TIME_FORMAT_12_HOUR, item.getRemindAt());
-                }
+            if(item.getCompletedAt()!=null){
+                Date time = item.getCompletedAt();
+                CharSequence timeToShow = DateUtils.getRelativeTimeSpanString(time.getTime());
+//                CharSequence timeToShow = DateUtils.getRelativeDateTimeString(MainActivity.this, time.getTime(), DateUtils.SECOND_IN_MILLIS, DateUtils.WEEK_IN_MILLIS, 0);
+                holder.mTimeTextView.setText(timeToShow);
+            } else if(item.getRemindAt()!=null){
+                Date time = item.getRemindAt();
+                CharSequence timeToShow = DateUtils.getRelativeTimeSpanString(time.getTime());
+//                CharSequence timeToShow = DateUtils.getRelativeDateTimeString(MainActivity.this, time.getTime(), DateUtils.SECOND_IN_MILLIS, DateUtils.WEEK_IN_MILLIS, 0);
                 holder.mTimeTextView.setText(timeToShow);
             }
 

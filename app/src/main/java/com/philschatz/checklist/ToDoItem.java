@@ -17,7 +17,9 @@ public class ToDoItem implements Serializable{
      */
 
     private String mTitle;
+    private Date mCreatedAt;
     private Date mRemindAt;
+    private Date mCompletedAt;
     private String mIdentifier;
     private static final String TODOTEXT = "todotext";
     private static final String TODODATE = "tododate";
@@ -26,6 +28,7 @@ public class ToDoItem implements Serializable{
 
     public ToDoItem(){
         mIdentifier = UUID.randomUUID().toString();
+        mCreatedAt = new Date();
     }
 
     public ToDoItem(JSONObject jsonObject) throws JSONException{
@@ -62,8 +65,24 @@ public class ToDoItem implements Serializable{
         return mRemindAt;
     }
 
-    public void setRemindAt(Date remindAt) {
-        this.mRemindAt = remindAt;
+    public void setRemindAt(Date at) {
+        this.mRemindAt = at;
+    }
+
+    public Date getCompletedAt() {
+        return mCompletedAt;
+    }
+
+    public void setCompletedAt(Date at) {
+        this.mCompletedAt = at;
+    }
+
+    public Date getCreatedAt() {
+        return mCreatedAt;
+    }
+
+    public void setCreatedAt(Date at) {
+        this.mCreatedAt = at;
     }
 
 
