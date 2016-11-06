@@ -34,38 +34,40 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-public class AddToDoActivity extends AppCompatActivity implements  DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener{
+public class AddToDoActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
+    public static final String DATE_FORMAT = "MMM d, yyyy";
+    public static final String DATE_FORMAT_MONTH_DAY = "MMM d";
+    public static final String DATE_FORMAT_TIME = "H:m";
+    AnalyticsApplication app;
     private Date mLastEdited;
     private EditText mToDoTextBodyEditText;
     private SwitchCompat mToDoDateSwitch;
-//    private TextView mLastSeenTextView;
+    //    private TextView mLastSeenTextView;
     private LinearLayout mUserDateSpinnerContainingLinearLayout;
     private TextView mReminderTextView;
-
     private EditText mDateEditText;
     private EditText mTimeEditText;
     private String mDefaultTimeOptions12H[];
     private String mDefaultTimeOptions24H[];
-
     private Button mChooseDateButton;
     private Button mChooseTimeButton;
     private ToDoItem mUserToDoItem;
     private String mUserToDoItemId;
     private FloatingActionButton mToDoSendFloatingActionButton;
-    public static final String DATE_FORMAT = "MMM d, yyyy";
-    public static final String DATE_FORMAT_MONTH_DAY = "MMM d";
-    public static final String DATE_FORMAT_TIME = "H:m";
-
     private String mUserEnteredText;
     private boolean mUserHasReminder;
     private Toolbar mToolbar;
     private Date mUserReminderDate;
-//    private int mUserColor;
+    //    private int mUserColor;
     private boolean setDateButtonClickedOnce = false;
     private boolean setTimeButtonClickedOnce = false;
     private LinearLayout mContainerLayout;
     private String theme;
-    AnalyticsApplication app;
+
+    public static String formatDate(String formatString, Date dateToFormat) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(formatString);
+        return simpleDateFormat.format(dateToFormat);
+    }
 
     @Override
     protected void onResume() {
@@ -76,7 +78,7 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
     @SuppressWarnings("deprecation")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        app = (AnalyticsApplication)getApplication();
+        app = (AnalyticsApplication) getApplication();
 //        setContentView(R.layout.new_to_do_layout);
         //Need references to these to change them during light/dark mode
         ImageButton reminderIconImageButton;
@@ -84,11 +86,10 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
 
 
         theme = getSharedPreferences(MainActivity.THEME_PREFERENCES, MODE_PRIVATE).getString(MainActivity.THEME_SAVED, MainActivity.LIGHTTHEME);
-        if(theme.equals(MainActivity.LIGHTTHEME)){
+        if (theme.equals(MainActivity.LIGHTTHEME)) {
             setTheme(R.style.CustomStyle_LightTheme);
             Log.d("OskarSchindler", "Light Theme");
-        }
-        else{
+        } else {
             setTheme(R.style.CustomStyle_DarkTheme);
         }
 
@@ -99,23 +100,23 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
 
         //Show an X in place of <-
         final Drawable cross = getResources().getDrawable(R.drawable.ic_clear_white_24dp);
-        if(cross !=null){
+        if (cross != null) {
             cross.setColorFilter(getResources().getColor(R.color.icons), PorterDuff.Mode.SRC_ATOP);
         }
 
-        mToolbar = (Toolbar)findViewById(R.id.toolbar);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
 
-        if(getSupportActionBar()!=null){
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setElevation(0);
             getSupportActionBar().setDisplayShowTitleEnabled(false);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setHomeAsUpIndicator(cross );
+            getSupportActionBar().setHomeAsUpIndicator(cross);
 
         }
 
 
-        mUserToDoItem = (ToDoItem)getIntent().getSerializableExtra(MainActivity.TODOITEM);
+        mUserToDoItem = (ToDoItem) getIntent().getSerializableExtra(MainActivity.TODOITEM);
         mUserToDoItemId = getIntent().getStringExtra(MainActivity.TODOITEM_ID);
 
         mUserEnteredText = mUserToDoItem.getTitle();
@@ -132,21 +133,21 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
 //        }
 
 
-        reminderIconImageButton = (ImageButton)findViewById(R.id.userToDoReminderIconImageButton);
-        reminderRemindMeTextView = (TextView)findViewById(R.id.userToDoRemindMeTextView);
-        if(theme.equals(MainActivity.DARKTHEME)){
+        reminderIconImageButton = (ImageButton) findViewById(R.id.userToDoReminderIconImageButton);
+        reminderRemindMeTextView = (TextView) findViewById(R.id.userToDoRemindMeTextView);
+        if (theme.equals(MainActivity.DARKTHEME)) {
             reminderIconImageButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_alarm_add_white_24dp));
             reminderRemindMeTextView.setTextColor(Color.WHITE);
         }
 
 
-        mContainerLayout = (LinearLayout)findViewById(R.id.todoReminderAndDateContainerLayout);
-        mUserDateSpinnerContainingLinearLayout = (LinearLayout)findViewById(R.id.toDoEnterDateLinearLayout);
-        mToDoTextBodyEditText = (EditText)findViewById(R.id.userToDoEditText);
-        mToDoDateSwitch = (SwitchCompat)findViewById(R.id.toDoHasDateSwitchCompat);
+        mContainerLayout = (LinearLayout) findViewById(R.id.todoReminderAndDateContainerLayout);
+        mUserDateSpinnerContainingLinearLayout = (LinearLayout) findViewById(R.id.toDoEnterDateLinearLayout);
+        mToDoTextBodyEditText = (EditText) findViewById(R.id.userToDoEditText);
+        mToDoDateSwitch = (SwitchCompat) findViewById(R.id.toDoHasDateSwitchCompat);
 //        mLastSeenTextView = (TextView)findViewById(R.id.toDoLastEditedTextView);
-        mToDoSendFloatingActionButton = (FloatingActionButton)findViewById(R.id.makeToDoFloatingActionButton);
-        mReminderTextView = (TextView)findViewById(R.id.newToDoDateTimeReminderTextView);
+        mToDoSendFloatingActionButton = (FloatingActionButton) findViewById(R.id.makeToDoFloatingActionButton);
+        mReminderTextView = (TextView) findViewById(R.id.newToDoDateTimeReminderTextView);
 
 
         mContainerLayout.setOnClickListener(new View.OnClickListener() {
@@ -157,12 +158,12 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
         });
 
 
-        if(mUserHasReminder && (mUserReminderDate!=null)){
+        if (mUserHasReminder && (mUserReminderDate != null)) {
 //            mUserDateSpinnerContainingLinearLayout.setVisibility(View.VISIBLE);
             setReminderTextView();
             setEnterDateLayoutVisibleWithAnimations(true);
         }
-        if(mUserReminderDate==null){
+        if (mUserReminderDate == null) {
             mToDoDateSwitch.setChecked(false);
             mReminderTextView.setVisibility(View.INVISIBLE);
         }
@@ -171,7 +172,7 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
 //        til.requestFocus();
         mToDoTextBodyEditText.requestFocus();
         mToDoTextBodyEditText.setText(mUserEnteredText);
-        InputMethodManager imm = (InputMethodManager)this.getSystemService(INPUT_METHOD_SERVICE);
+        InputMethodManager imm = (InputMethodManager) this.getSystemService(INPUT_METHOD_SERVICE);
 //        imm.showSoftInput(mToDoTextBodyEditText, InputMethodManager.SHOW_IMPLICIT);
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
         mToDoTextBodyEditText.setSelection(mToDoTextBodyEditText.length());
@@ -205,10 +206,9 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
         mToDoDateSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
+                if (isChecked) {
                     app.send(this, "Action", "Reminder Set");
-                }
-                else{
+                } else {
                     app.send(this, "Action", "Reminder Removed");
 
                 }
@@ -228,11 +228,10 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
             @Override
             public void onClick(View v) {
                 hideKeyboard(mToDoTextBodyEditText);
-                if(mUserReminderDate!=null && mUserReminderDate.before(new Date())){
+                if (mUserReminderDate != null && mUserReminderDate.before(new Date())) {
                     app.send(this, "Action", "Date in the Past");
 //                    makeResult(RESULT_CANCELED);
-                }
-                else{
+                } else {
                     app.send(this, "Action", "Make Todo");
                     makeResult(RESULT_OK);
                     finish();
@@ -241,8 +240,8 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
         });
 
 
-        mDateEditText = (EditText)findViewById(R.id.newTodoDateEditText);
-        mTimeEditText = (EditText)findViewById(R.id.newTodoTimeEditText);
+        mDateEditText = (EditText) findViewById(R.id.newTodoDateEditText);
+        mTimeEditText = (EditText) findViewById(R.id.newTodoTimeEditText);
 
         mDateEditText.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -250,11 +249,10 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
 
                 Date date;
                 hideKeyboard(mToDoTextBodyEditText);
-                if(mUserToDoItem.getRemindAt()!=null){
+                if (mUserToDoItem.getRemindAt() != null) {
 //                    date = mUserToDoItem.getRemindAt();
                     date = mUserReminderDate;
-                }
-                else{
+                } else {
                     date = new Date();
                 }
                 Calendar calendar = Calendar.getInstance();
@@ -265,7 +263,7 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
 
 
                 DatePickerDialog datePickerDialog = DatePickerDialog.newInstance(AddToDoActivity.this, year, month, day);
-                if(theme.equals(MainActivity.DARKTHEME)){
+                if (theme.equals(MainActivity.DARKTHEME)) {
                     datePickerDialog.setThemeDark(true);
                 }
                 datePickerDialog.show(getFragmentManager(), "DateFragment");
@@ -280,11 +278,10 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
 
                 Date date;
                 hideKeyboard(mToDoTextBodyEditText);
-                if(mUserToDoItem.getRemindAt()!=null){
+                if (mUserToDoItem.getRemindAt() != null) {
 //                    date = mUserToDoItem.getRemindAt();
                     date = mUserReminderDate;
-                }
-                else{
+                } else {
                     date = new Date();
                 }
                 Calendar calendar = Calendar.getInstance();
@@ -293,7 +290,7 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
                 int minute = calendar.get(Calendar.MINUTE);
 
                 TimePickerDialog timePickerDialog = TimePickerDialog.newInstance(AddToDoActivity.this, hour, minute, DateFormat.is24HourFormat(AddToDoActivity.this));
-                if(theme.equals(MainActivity.DARKTHEME)){
+                if (theme.equals(MainActivity.DARKTHEME)) {
                     timePickerDialog.setThemeDark(true);
                 }
                 timePickerDialog.show(getFragmentManager(), "TimeFragment");
@@ -361,15 +358,14 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
 
     }
 
-    private void setDateAndTimeEditText(){
+    private void setDateAndTimeEditText() {
 
-        if(mUserToDoItem.getRemindAt() != null && mUserReminderDate!=null){
+        if (mUserToDoItem.getRemindAt() != null && mUserReminderDate != null) {
             String userDate = formatDate("d MMM, yyyy", mUserReminderDate);
             String formatToUse;
-            if(DateFormat.is24HourFormat(this)){
+            if (DateFormat.is24HourFormat(this)) {
                 formatToUse = "k:mm";
-            }
-            else{
+            } else {
                 formatToUse = "h:mm a";
 
             }
@@ -377,26 +373,23 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
             mTimeEditText.setText(userTime);
             mDateEditText.setText(userDate);
 
-        }
-        else{
+        } else {
             mDateEditText.setText(getString(R.string.date_reminder_default));
 //            mUserReminderDate = new Date();
             boolean time24 = DateFormat.is24HourFormat(this);
             Calendar cal = Calendar.getInstance();
-            if(time24){
-                cal.set(Calendar.HOUR_OF_DAY, cal.get(Calendar.HOUR_OF_DAY)+1);
-            }
-            else{
-                cal.set(Calendar.HOUR, cal.get(Calendar.HOUR)+1);
+            if (time24) {
+                cal.set(Calendar.HOUR_OF_DAY, cal.get(Calendar.HOUR_OF_DAY) + 1);
+            } else {
+                cal.set(Calendar.HOUR, cal.get(Calendar.HOUR) + 1);
             }
             cal.set(Calendar.MINUTE, 0);
             mUserReminderDate = cal.getTime();
-            Log.d("OskarSchindler", "Imagined Date: "+mUserReminderDate);
+            Log.d("OskarSchindler", "Imagined Date: " + mUserReminderDate);
             String timeString;
-            if(time24){
+            if (time24) {
                 timeString = formatDate("k:mm", mUserReminderDate);
-            }
-            else{
+            } else {
                 timeString = formatDate("h:mm a", mUserReminderDate);
             }
             mTimeEditText.setText(timeString);
@@ -423,18 +416,17 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
         }
     }
 
-    private String getThemeSet(){
+    private String getThemeSet() {
         return getSharedPreferences(MainActivity.THEME_PREFERENCES, MODE_PRIVATE).getString(MainActivity.THEME_SAVED, MainActivity.LIGHTTHEME);
     }
-    public void hideKeyboard(EditText et){
 
-        InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
+    public void hideKeyboard(EditText et) {
+
+        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(et.getWindowToken(), 0);
     }
 
-
-
-    public void setDate(int year, int month, int day){
+    public void setDate(int year, int month, int day) {
         Calendar calendar = Calendar.getInstance();
         int hour, minute;
 //        int currentYear = calendar.get(Calendar.YEAR);
@@ -443,20 +435,19 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
 
         Calendar reminderCalendar = Calendar.getInstance();
         reminderCalendar.set(year, month, day);
-        
-        if(reminderCalendar.before(calendar)){
+
+        if (reminderCalendar.before(calendar)) {
             Toast.makeText(this, "My time-machine is a bit rusty", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if(mUserReminderDate!=null){
+        if (mUserReminderDate != null) {
             calendar.setTime(mUserReminderDate);
         }
 
-        if(DateFormat.is24HourFormat(this)){
+        if (DateFormat.is24HourFormat(this)) {
             hour = calendar.get(Calendar.HOUR_OF_DAY);
-        }
-        else{
+        } else {
 
             hour = calendar.get(Calendar.HOUR);
         }
@@ -469,9 +460,9 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
         setDateEditText();
     }
 
-    public void setTime(int hour, int minute){
+    public void setTime(int hour, int minute) {
         Calendar calendar = Calendar.getInstance();
-        if(mUserReminderDate!=null){
+        if (mUserReminderDate != null) {
             calendar.setTime(mUserReminderDate);
         }
 
@@ -482,7 +473,7 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
-        Log.d("OskarSchindler", "Time set: "+hour);
+        Log.d("OskarSchindler", "Time set: " + hour);
         calendar.set(year, month, day, hour, minute, 0);
         mUserReminderDate = calendar.getTime();
 
@@ -491,28 +482,27 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
         setTimeEditText();
     }
 
-    public void  setDateEditText(){
+    public void setDateEditText() {
         String dateFormat = "d MMM, yyyy";
         mDateEditText.setText(formatDate(dateFormat, mUserReminderDate));
     }
 
-    public void  setTimeEditText(){
+    public void setTimeEditText() {
         String dateFormat;
-        if(DateFormat.is24HourFormat(this)){
+        if (DateFormat.is24HourFormat(this)) {
             dateFormat = "k:mm";
-        }
-        else{
+        } else {
             dateFormat = "h:mm a";
 
         }
         mTimeEditText.setText(formatDate(dateFormat, mUserReminderDate));
     }
 
-    public void setReminderTextView(){
-        if(mUserReminderDate!=null){
+    public void setReminderTextView() {
+        if (mUserReminderDate != null) {
             mReminderTextView.setVisibility(View.VISIBLE);
-            if(mUserReminderDate.before(new Date())){
-                Log.d("OskarSchindler", "DATE is "+mUserReminderDate);
+            if (mUserReminderDate.before(new Date())) {
+                Log.d("OskarSchindler", "DATE is " + mUserReminderDate);
                 mReminderTextView.setText(getString(R.string.date_error_check_again));
                 mReminderTextView.setTextColor(Color.RED);
                 return;
@@ -522,35 +512,32 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
             String timeString;
             String amPmString = "";
 
-            if(DateFormat.is24HourFormat(this)){
+            if (DateFormat.is24HourFormat(this)) {
                 timeString = formatDate("k:mm", date);
-            }
-            else{
+            } else {
                 timeString = formatDate("h:mm", date);
                 amPmString = formatDate("a", date);
             }
             String finalString = String.format(getResources().getString(R.string.remind_date_and_time), dateString, timeString, amPmString);
             mReminderTextView.setTextColor(getResources().getColor(R.color.secondary_text));
             mReminderTextView.setText(finalString);
-        }
-        else{
+        } else {
             mReminderTextView.setVisibility(View.INVISIBLE);
 
         }
     }
 
-    public void makeResult(int result){
+    public void makeResult(int result) {
         Intent i = new Intent();
-        if(mUserEnteredText.length()>0){
+        if (mUserEnteredText.length() > 0) {
 
-            String capitalizedString = Character.toUpperCase(mUserEnteredText.charAt(0))+mUserEnteredText.substring(1);
+            String capitalizedString = Character.toUpperCase(mUserEnteredText.charAt(0)) + mUserEnteredText.substring(1);
             mUserToDoItem.setTitle(capitalizedString);
-        }
-        else{
+        } else {
             mUserToDoItem.setTitle(mUserEnteredText);
         }
 //        mUserToDoItem.setLastEdited(mLastEdited);
-        if(mUserReminderDate!=null){
+        if (mUserReminderDate != null) {
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(mUserReminderDate);
             calendar.set(Calendar.SECOND, 0);
@@ -570,7 +557,7 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
 
     @Override
     public void onBackPressed() {
-        if(mUserReminderDate.before(new Date())){
+        if (mUserReminderDate.before(new Date())) {
             mUserToDoItem.setRemindAt(null);
         }
         makeResult(RESULT_OK);
@@ -579,9 +566,9 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case android.R.id.home:
-                if(NavUtils.getParentActivityName(this)!=null){
+                if (NavUtils.getParentActivityName(this) != null) {
                     app.send(this, "Action", "Discard Todo");
                     makeResult(RESULT_CANCELED);
                     NavUtils.navigateUpFromSameTask(this);
@@ -594,11 +581,6 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
         }
     }
 
-    public static String formatDate(String formatString, Date dateToFormat){
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(formatString);
-        return simpleDateFormat.format(dateToFormat);
-    }
-
     @Override
     public void onTimeSet(RadialPickerLayout radialPickerLayout, int hour, int minute) {
         setTime(hour, minute);
@@ -609,17 +591,16 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
         setDate(year, month, day);
     }
 
-    public void setEnterDateLayoutVisible(boolean checked){
-        if(checked){
+    public void setEnterDateLayoutVisible(boolean checked) {
+        if (checked) {
             mUserDateSpinnerContainingLinearLayout.setVisibility(View.VISIBLE);
-        }
-        else{
+        } else {
             mUserDateSpinnerContainingLinearLayout.setVisibility(View.INVISIBLE);
         }
     }
 
-    public void setEnterDateLayoutVisibleWithAnimations(boolean checked){
-        if(checked){
+    public void setEnterDateLayoutVisibleWithAnimations(boolean checked) {
+        if (checked) {
             setReminderTextView();
             mUserDateSpinnerContainingLinearLayout.animate().alpha(1.0f).setDuration(500).setListener(
                     new Animator.AnimatorListener() {
@@ -641,8 +622,7 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
                         }
                     }
             );
-        }
-        else{
+        } else {
             mUserDateSpinnerContainingLinearLayout.animate().alpha(0.0f).setDuration(500).setListener(
                     new Animator.AnimatorListener() {
                         @Override

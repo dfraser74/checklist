@@ -4,17 +4,14 @@
     tools:context=".AddToDoActivity">
 
 
-
-
     <item
         android:id="@+id/preferences"
         android:title="@string/action_settings"
-        app:showAsAction="never"
-        />
+        app:showAsAction="never" />
 
-    <item android:title="@string/about"
+    <item
         android:id="@+id/aboutMeMenuItem"
-        app:showAsAction="never"
-        />
+        android:title="@string/about"
+        app:showAsAction="never" />
 
 </menu>

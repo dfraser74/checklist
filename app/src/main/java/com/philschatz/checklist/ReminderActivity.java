@@ -23,7 +23,10 @@ import java.util.Date;
 
 import fr.ganfra.materialspinner.MaterialSpinner;
 
-public class ReminderActivity extends AppCompatActivity{
+public class ReminderActivity extends AppCompatActivity {
+    public static final String EXIT = "com.avjindersekhon.exit";
+    String theme;
+    AnalyticsApplication app;
     private TextView mtoDoTextTextView;
     private Button mRemoveToDoButton;
     private MaterialSpinner mSnoozeSpinner;
@@ -31,21 +34,17 @@ public class ReminderActivity extends AppCompatActivity{
     private StoreRetrieveData storeRetrieveData;
     private ArrayList<ToDoItem> mToDoItems;
     private ToDoItem mItem;
-    public static final String EXIT = "com.avjindersekhon.exit";
     private TextView mSnoozeTextView;
-    String theme;
-    AnalyticsApplication app;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
-        app = (AnalyticsApplication)getApplication();
+        app = (AnalyticsApplication) getApplication();
         app.send(this);
 
         theme = getSharedPreferences(MainActivity.THEME_PREFERENCES, MODE_PRIVATE).getString(MainActivity.THEME_SAVED, MainActivity.LIGHTTHEME);
-        if(theme.equals(MainActivity.LIGHTTHEME)){
+        if (theme.equals(MainActivity.LIGHTTHEME)) {
             setTheme(R.style.CustomStyle_LightTheme);
-        }
-        else{
+        } else {
             setTheme(R.style.CustomStyle_DarkTheme);
         }
         super.onCreate(savedInstanceState);
@@ -53,15 +52,14 @@ public class ReminderActivity extends AppCompatActivity{
         storeRetrieveData = new StoreRetrieveData(this, MainActivity.FILENAME);
         mToDoItems = MainActivity.getLocallyStoredData(storeRetrieveData);
 
-        setSupportActionBar((Toolbar)findViewById(R.id.toolbar));
-
+        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
 
         Intent i = getIntent();
         String id = i.getStringExtra(TodoNotificationService.TODOUUID);
         mItem = null;
-        for(ToDoItem toDoItem : mToDoItems){
-            if (toDoItem.getIdentifier().equals(id)){
+        for (ToDoItem toDoItem : mToDoItems) {
+            if (toDoItem.getIdentifier().equals(id)) {
                 mItem = toDoItem;
                 break;
             }
@@ -69,21 +67,20 @@ public class ReminderActivity extends AppCompatActivity{
 
         snoozeOptionsArray = getResources().getStringArray(R.array.snooze_options);
 
-        mRemoveToDoButton = (Button)findViewById(R.id.toDoReminderRemoveButton);
-        mtoDoTextTextView = (TextView)findViewById(R.id.toDoReminderTextViewBody);
-        mSnoozeTextView = (TextView)findViewById(R.id.reminderViewSnoozeTextView);
-        mSnoozeSpinner = (MaterialSpinner)findViewById(R.id.todoReminderSnoozeSpinner);
+        mRemoveToDoButton = (Button) findViewById(R.id.toDoReminderRemoveButton);
+        mtoDoTextTextView = (TextView) findViewById(R.id.toDoReminderTextViewBody);
+        mSnoozeTextView = (TextView) findViewById(R.id.reminderViewSnoozeTextView);
+        mSnoozeSpinner = (MaterialSpinner) findViewById(R.id.todoReminderSnoozeSpinner);
 
 //        mtoDoTextTextView.setBackgroundColor(item.getTodoColor());
         mtoDoTextTextView.setText(mItem.getTitle());
 
-        if(theme.equals(MainActivity.LIGHTTHEME)){
+        if (theme.equals(MainActivity.LIGHTTHEME)) {
             mSnoozeTextView.setTextColor(getResources().getColor(R.color.secondary_text));
-        }
-        else{
+        } else {
             mSnoozeTextView.setTextColor(Color.WHITE);
             mSnoozeTextView.setCompoundDrawablesWithIntrinsicBounds(
-                    R.drawable.ic_snooze_white_24dp,0,0,0
+                    R.drawable.ic_snooze_white_24dp, 0, 0, 0
             );
         }
 
@@ -110,7 +107,7 @@ public class ReminderActivity extends AppCompatActivity{
 
     }
 
-    private void closeApp(){
+    private void closeApp() {
         Intent i = new Intent(ReminderActivity.this, MainActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 //        i.putExtra(EXIT, true);
@@ -127,7 +124,8 @@ public class ReminderActivity extends AppCompatActivity{
         getMenuInflater().inflate(R.menu.menu_reminder, menu);
         return true;
     }
-    private void changeOccurred(){
+
+    private void changeOccurred() {
         SharedPreferences sharedPreferences = getSharedPreferences(MainActivity.SHARED_PREF_DATA_SET_CHANGED, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(MainActivity.CHANGE_OCCURED, true);
@@ -135,16 +133,17 @@ public class ReminderActivity extends AppCompatActivity{
         editor.apply();
     }
 
-    private Date addTimeToDate(int mins){
-        app.send(this, "Action", "Snoozed", "For "+mins+" minutes");
+    private Date addTimeToDate(int mins) {
+        app.send(this, "Action", "Snoozed", "For " + mins + " minutes");
         Date date = new Date();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         calendar.add(Calendar.MINUTE, mins);
         return calendar.getTime();
     }
-    private int valueFromSpinner(){
-        switch (mSnoozeSpinner.getSelectedItemPosition()){
+
+    private int valueFromSpinner() {
+        switch (mSnoozeSpinner.getSelectedItemPosition()) {
             case 0:
                 return 10;
             case 1:
@@ -158,7 +157,7 @@ public class ReminderActivity extends AppCompatActivity{
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.toDoReminderDoneMenuItem:
                 Date date = addTimeToDate(valueFromSpinner());
                 mItem.setRemindAt(date);
@@ -184,11 +183,10 @@ public class ReminderActivity extends AppCompatActivity{
 //        }
 //    }
 
-    private void saveData(){
-        try{
+    private void saveData() {
+        try {
             storeRetrieveData.saveToFile(mToDoItems);
-        }
-        catch (JSONException | IOException e){
+        } catch (JSONException | IOException e) {
             e.printStackTrace();
         }
     }

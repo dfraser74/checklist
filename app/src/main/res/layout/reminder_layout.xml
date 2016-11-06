@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-    <include layout="@layout/base_toolbar"/>
+
+    <include layout="@layout/base_toolbar" />
 
     <!--Put all strings to string.xml-->
 
@@ -20,6 +21,7 @@
         android:text="@string/example"
         android:textColor="@color/icons"
         android:textSize="20sp" />
+
     <Button
         android:id="@+id/toDoReminderRemoveButton"
         android:layout_width="match_parent"
@@ -38,6 +40,7 @@
         android:gravity="start"
         android:orientation="horizontal"
         android:paddingTop="24dp">
+
         <TextView
             android:id="@+id/reminderViewSnoozeTextView"
             android:layout_width="0dp"
@@ -59,10 +62,7 @@
             android:layout_marginLeft="2dp"
             android:layout_marginRight="16dp"
             android:layout_weight="1.5"
-            app:ms_highlightColor="?attr/colorAccent"
-            />
-
-
+            app:ms_highlightColor="?attr/colorAccent" />
 
 
     </LinearLayout>

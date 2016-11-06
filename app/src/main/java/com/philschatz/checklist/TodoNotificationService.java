@@ -6,10 +6,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.net.Uri;
-
-import java.util.UUID;
+import android.util.Log;
 
 /*
  * This generates the homescreen notification for checklist items that have a reminder
@@ -21,16 +19,17 @@ public class TodoNotificationService extends IntentService {
     private String mTodoUUID;
     private Context mContext;
 
-    public TodoNotificationService(){
+    public TodoNotificationService() {
         super("TodoNotificationService");
     }
+
     @Override
     protected void onHandleIntent(Intent intent) {
         mTodoText = intent.getStringExtra(TODOTEXT);
         mTodoUUID = intent.getStringExtra(TODOUUID);
 
         Log.d("OskarSchindler", "onHandleIntent called");
-        NotificationManager manager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+        NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         Intent i = new Intent(this, ReminderActivity.class);
         i.putExtra(TodoNotificationService.TODOUUID, mTodoUUID);
         Intent deleteIntent = new Intent(this, DeleteNotificationService.class);

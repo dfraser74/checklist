@@ -12,7 +12,7 @@ public class DeleteNotificationService extends IntentService {
     private ArrayList<ToDoItem> mToDoItems;
     private ToDoItem mItem;
 
-    public DeleteNotificationService(){
+    public DeleteNotificationService() {
         super("DeleteNotificationService");
     }
 
@@ -23,15 +23,15 @@ public class DeleteNotificationService extends IntentService {
 
         //TODO: PHIL use the firebase key instead of the UUID. That way it can be pulled directly from the DB maybe, yeah?
         mToDoItems = loadData();
-        if(mToDoItems!=null){
-            for(ToDoItem item : mToDoItems){
-                if(item.getIdentifier().equals(todoID)){
+        if (mToDoItems != null) {
+            for (ToDoItem item : mToDoItems) {
+                if (item.getIdentifier().equals(todoID)) {
                     mItem = item;
                     break;
                 }
             }
 
-            if(mItem!=null){
+            if (mItem != null) {
                 mToDoItems.remove(mItem);
                 dataChanged();
                 saveData();
@@ -41,18 +41,17 @@ public class DeleteNotificationService extends IntentService {
 
     }
 
-    private void dataChanged(){
+    private void dataChanged() {
         SharedPreferences sharedPreferences = getSharedPreferences(MainActivity.SHARED_PREF_DATA_SET_CHANGED, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(MainActivity.CHANGE_OCCURED, true);
         editor.apply();
     }
 
-    private void saveData(){
-        try{
+    private void saveData() {
+        try {
             storeRetrieveData.saveToFile(mToDoItems);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -63,11 +62,10 @@ public class DeleteNotificationService extends IntentService {
         saveData();
     }
 
-    private ArrayList<ToDoItem> loadData(){
-        try{
+    private ArrayList<ToDoItem> loadData() {
+        try {
             return storeRetrieveData.loadFromFile();
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

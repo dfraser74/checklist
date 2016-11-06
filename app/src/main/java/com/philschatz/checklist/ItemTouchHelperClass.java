@@ -3,14 +3,10 @@ package com.philschatz.checklist;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 
-public class ItemTouchHelperClass extends ItemTouchHelper.Callback{
+public class ItemTouchHelperClass extends ItemTouchHelper.Callback {
     private ItemTouchHelperAdapter adapter;
-    public interface ItemTouchHelperAdapter{
-        void onItemMoved(int fromPosition, int toPosition);
-        void onItemRemoved(int position);
-    }
 
-    public ItemTouchHelperClass(ItemTouchHelperAdapter ad){
+    public ItemTouchHelperClass(ItemTouchHelperAdapter ad) {
         adapter = ad;
     }
 
@@ -42,6 +38,12 @@ public class ItemTouchHelperClass extends ItemTouchHelper.Callback{
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
         adapter.onItemRemoved(viewHolder.getAdapterPosition());
 
+    }
+
+    public interface ItemTouchHelperAdapter {
+        void onItemMoved(int fromPosition, int toPosition);
+
+        void onItemRemoved(int position);
     }
 
 //    @SuppressWarnings("deprecation")
