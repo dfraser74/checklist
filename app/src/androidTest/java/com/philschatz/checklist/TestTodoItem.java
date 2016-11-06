@@ -44,9 +44,8 @@ public class TestTodoItem extends TestCase {
       */
     public void testThreeParameterConstructor() {
         ToDoItem toDoItem = getToDoItem(REMINDER_OFF);
-        assertEquals(TEXT_BODY, toDoItem.getToDoText());
-        assertEquals(REMINDER_OFF, toDoItem.hasReminder());
-        assertEquals(CURRENT_DATE, toDoItem.getToDoDate());
+        assertEquals(TEXT_BODY, toDoItem.getTitle());
+        assertEquals(null, toDoItem.getRemindAt());
     }
 
      /**
@@ -75,9 +74,8 @@ public class TestTodoItem extends TestCase {
             JSONObject json = originalItem.toJSON();
             ToDoItem itemFromJson = new ToDoItem(json);
 
-            assertEquals(originalItem.getToDoText(), itemFromJson.getToDoText());
-            assertEquals(originalItem.getToDoDate(), itemFromJson.getToDoDate());
-            assertEquals(originalItem.hasReminder(), itemFromJson.hasReminder());
+            assertEquals(originalItem.getTitle(), itemFromJson.getTitle());
+            assertEquals(originalItem.getRemindAt(), itemFromJson.getRemindAt());
             assertEquals(originalItem.getIdentifier(), itemFromJson.getIdentifier());
 
         } catch (JSONException e) {
@@ -86,6 +84,11 @@ public class TestTodoItem extends TestCase {
     }
 
     private ToDoItem getToDoItem(boolean hasReminder) {
-        return new ToDoItem(TEXT_BODY, hasReminder, CURRENT_DATE);
+        ToDoItem item = new ToDoItem();
+        item.setTitle(TEXT_BODY);
+        if (hasReminder) {
+            item.setRemindAt(CURRENT_DATE);
+        }
+        return item;
     }
 }

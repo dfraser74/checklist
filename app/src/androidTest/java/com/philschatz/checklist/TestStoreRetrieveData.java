@@ -29,7 +29,6 @@ import android.test.ActivityUnitTestCase;
 import org.json.JSONArray;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 /**
  * Test cases for StoreRetrieveData class
@@ -46,10 +45,9 @@ public class TestStoreRetrieveData extends ActivityUnitTestCase<MainActivity> {
         // Create some test data
         mTestData = new ArrayList<>();
         for (int i = 1; i < 11; i++) {
-            mTestData.add(new ToDoItem(
-                    "item" + i,
-                    false,
-                    new Date()));
+            ToDoItem item = new ToDoItem();
+            item.setTitle("item" + i);
+            mTestData.add(item);
         }
     }
 
@@ -135,9 +133,8 @@ public class TestStoreRetrieveData extends ActivityUnitTestCase<MainActivity> {
 
                 // Check the items are same
                 if (retrievedItem.getIdentifier().equals(testItem.getIdentifier()) &&
-                        retrievedItem.getToDoText().equals(testItem.getToDoText()) &&
-                        retrievedItem.hasReminder() == testItem.hasReminder() &&
-                        retrievedItem.getToDoDate().equals(testItem.getToDoDate())) {
+                        retrievedItem.getTitle().equals(testItem.getTitle()) &&
+                        retrievedItem.getRemindAt().equals(testItem.getRemindAt())) {
 
                     found = true;
                     break;

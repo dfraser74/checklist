@@ -8,111 +8,72 @@ import java.util.Date;
 import java.util.UUID;
 
 public class ToDoItem implements Serializable{
-    public String firebaseKey;
-    private String mToDoText;
-    private boolean mHasReminder;
-//    private Date mLastEdited;
-    private int mTodoColor;
-    private Date mToDoDate;
-    private UUID mTodoIdentifier;
+
+    /*
+    createdAt
+    completedAt
+    updatedAt
+    remindAt (optional)
+     */
+
+    private String mTitle;
+    private Date mRemindAt;
+    private String mIdentifier;
     private static final String TODOTEXT = "todotext";
-    private static final String TODOREMINDER = "todoreminder";
-//    private static final String TODOLASTEDITED = "todolastedited";
-    private static final String TODOCOLOR = "todocolor";
     private static final String TODODATE = "tododate";
     private static final String TODOIDENTIFIER = "todoidentifier";
 
 
-    public ToDoItem(String todoBody, boolean hasReminder, Date toDoDate){
-        mToDoText = todoBody;
-        mHasReminder = hasReminder;
-        mToDoDate = toDoDate;
-        mTodoColor = 1677725;
-        mTodoIdentifier = UUID.randomUUID();
+    public ToDoItem(){
+        mIdentifier = UUID.randomUUID().toString();
     }
 
     public ToDoItem(JSONObject jsonObject) throws JSONException{
-        mToDoText = jsonObject.getString(TODOTEXT);
-        mHasReminder = jsonObject.getBoolean(TODOREMINDER);
-        mTodoColor = jsonObject.getInt(TODOCOLOR);
-        mTodoIdentifier = UUID.fromString(jsonObject.getString(TODOIDENTIFIER));
+        mTitle = jsonObject.getString(TODOTEXT);
+        mIdentifier = jsonObject.getString(TODOIDENTIFIER);
 
-//        if(jsonObject.has(TODOLASTEDITED)){
-//            mLastEdited = new Date(jsonObject.getLong(TODOLASTEDITED));
-//        }
         if(jsonObject.has(TODODATE)){
-            mToDoDate = new Date(jsonObject.getLong(TODODATE));
+            mRemindAt = new Date(jsonObject.getLong(TODODATE));
         }
     }
 
     public JSONObject toJSON() throws JSONException{
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put(TODOTEXT, mToDoText);
-        jsonObject.put(TODOREMINDER, mHasReminder);
-//        jsonObject.put(TODOLASTEDITED, mLastEdited.getTime());
-        if(mToDoDate!=null){
-            jsonObject.put(TODODATE, mToDoDate.getTime());
+        jsonObject.put(TODOTEXT, mTitle);
+        if(mRemindAt !=null){
+            jsonObject.put(TODODATE, mRemindAt.getTime());
         }
-        jsonObject.put(TODOCOLOR, mTodoColor);
-        jsonObject.put(TODOIDENTIFIER, mTodoIdentifier.toString());
+        jsonObject.put(TODOIDENTIFIER, mIdentifier);
 
         return jsonObject;
     }
 
 
-    public ToDoItem(){
-        this("Clean my room", true, new Date());
+
+    public String getTitle() {
+        return mTitle;
     }
 
-    public String getToDoText() {
-        return mToDoText;
+    public void setTitle(String title) {
+        this.mTitle = title;
     }
 
-    public void setToDoText(String mToDoText) {
-        this.mToDoText = mToDoText;
+    public Date getRemindAt() {
+        return mRemindAt;
     }
 
-    public boolean hasReminder() {
-        return mHasReminder;
-    }
-
-    public void setHasReminder(boolean mHasReminder) {
-        this.mHasReminder = mHasReminder;
-    }
-
-    public Date getToDoDate() {
-        return mToDoDate;
-    }
-
-    public int getTodoColor() {
-        return mTodoColor;
-    }
-
-    public void setTodoColor(int mTodoColor) {
-        this.mTodoColor = mTodoColor;
-    }
-
-    public void setToDoDate(Date mToDoDate) {
-        this.mToDoDate = mToDoDate;
+    public void setRemindAt(Date remindAt) {
+        this.mRemindAt = remindAt;
     }
 
 
-    public UUID getIdentifier(){
-        return mTodoIdentifier;
+    public String getIdentifier(){
+        return mIdentifier;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (o instanceof ToDoItem) {
-            return this.firebaseKey.equals(((ToDoItem) o).firebaseKey);
-        } else {
-            return false;
-        }
+    public void setIdentifier(String identifier){
+        mIdentifier = identifier;
     }
 
-    @Override
-    public final int hashCode() {
-        return this.firebaseKey.hashCode();
-    }
 }
 

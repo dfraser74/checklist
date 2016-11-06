@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.UUID;
 
 import fr.ganfra.materialspinner.MaterialSpinner;
 
@@ -59,7 +58,7 @@ public class ReminderActivity extends AppCompatActivity{
 
 
         Intent i = getIntent();
-        UUID id = (UUID)i.getSerializableExtra(TodoNotificationService.TODOUUID);
+        String id = i.getStringExtra(TodoNotificationService.TODOUUID);
         mItem = null;
         for(ToDoItem toDoItem : mToDoItems){
             if (toDoItem.getIdentifier().equals(id)){
@@ -76,7 +75,7 @@ public class ReminderActivity extends AppCompatActivity{
         mSnoozeSpinner = (MaterialSpinner)findViewById(R.id.todoReminderSnoozeSpinner);
 
 //        mtoDoTextTextView.setBackgroundColor(item.getTodoColor());
-        mtoDoTextTextView.setText(mItem.getToDoText());
+        mtoDoTextTextView.setText(mItem.getTitle());
 
         if(theme.equals(MainActivity.LIGHTTHEME)){
             mSnoozeTextView.setTextColor(getResources().getColor(R.color.secondary_text));
@@ -162,8 +161,7 @@ public class ReminderActivity extends AppCompatActivity{
         switch (item.getItemId()){
             case R.id.toDoReminderDoneMenuItem:
                 Date date = addTimeToDate(valueFromSpinner());
-                mItem.setToDoDate(date);
-                mItem.setHasReminder(true);
+                mItem.setRemindAt(date);
                 Log.d("OskarSchindler", "Date Changed to: " + date);
                 changeOccurred();
                 saveData();

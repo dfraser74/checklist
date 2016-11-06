@@ -60,7 +60,7 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
     private boolean mUserHasReminder;
     private Toolbar mToolbar;
     private Date mUserReminderDate;
-    private int mUserColor;
+//    private int mUserColor;
     private boolean setDateButtonClickedOnce = false;
     private boolean setTimeButtonClickedOnce = false;
     private LinearLayout mContainerLayout;
@@ -118,10 +118,10 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
         mUserToDoItem = (ToDoItem)getIntent().getSerializableExtra(MainActivity.TODOITEM);
         mUserToDoItemId = getIntent().getStringExtra(MainActivity.TODOITEM_ID);
 
-        mUserEnteredText = mUserToDoItem.getToDoText();
-        mUserHasReminder = mUserToDoItem.hasReminder();
-        mUserReminderDate = mUserToDoItem.getToDoDate();
-        mUserColor = mUserToDoItem.getTodoColor();
+        mUserEnteredText = mUserToDoItem.getTitle();
+        mUserReminderDate = mUserToDoItem.getRemindAt();
+        mUserHasReminder = mUserReminderDate != null;
+//        mUserColor = mUserToDoItem.getTodoColor();
 
 
 //        if(mUserToDoItem.getLastEdited()==null) {
@@ -250,8 +250,8 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
 
                 Date date;
                 hideKeyboard(mToDoTextBodyEditText);
-                if(mUserToDoItem.getToDoDate()!=null){
-//                    date = mUserToDoItem.getToDoDate();
+                if(mUserToDoItem.getRemindAt()!=null){
+//                    date = mUserToDoItem.getRemindAt();
                     date = mUserReminderDate;
                 }
                 else{
@@ -280,8 +280,8 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
 
                 Date date;
                 hideKeyboard(mToDoTextBodyEditText);
-                if(mUserToDoItem.getToDoDate()!=null){
-//                    date = mUserToDoItem.getToDoDate();
+                if(mUserToDoItem.getRemindAt()!=null){
+//                    date = mUserToDoItem.getRemindAt();
                     date = mUserReminderDate;
                 }
                 else{
@@ -314,8 +314,8 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
 //            public void onClick(View v) {
 //                Date date;
 //                hideKeyboard(mToDoTextBodyEditText);
-//                if(mUserToDoItem.getToDoDate()!=null){
-//                    date = mUserToDoItem.getToDoDate();
+//                if(mUserToDoItem.getRemindAt()!=null){
+//                    date = mUserToDoItem.getRemindAt();
 //                }
 //                else{
 //                    date = new Date();
@@ -340,8 +340,8 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
 //            public void onClick(View v) {
 //                Date date;
 //                hideKeyboard(mToDoTextBodyEditText);
-//                if(mUserToDoItem.getToDoDate()!=null){
-//                    date = mUserToDoItem.getToDoDate();
+//                if(mUserToDoItem.getRemindAt()!=null){
+//                    date = mUserToDoItem.getRemindAt();
 //                }
 //                else{
 //                    date = new Date();
@@ -363,7 +363,7 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
 
     private void setDateAndTimeEditText(){
 
-        if(mUserToDoItem.hasReminder() && mUserReminderDate!=null){
+        if(mUserToDoItem.getRemindAt() != null && mUserReminderDate!=null){
             String userDate = formatDate("d MMM, yyyy", mUserReminderDate);
             String formatToUse;
             if(DateFormat.is24HourFormat(this)){
@@ -544,10 +544,10 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
         if(mUserEnteredText.length()>0){
 
             String capitalizedString = Character.toUpperCase(mUserEnteredText.charAt(0))+mUserEnteredText.substring(1);
-            mUserToDoItem.setToDoText(capitalizedString);
+            mUserToDoItem.setTitle(capitalizedString);
         }
         else{
-            mUserToDoItem.setToDoText(mUserEnteredText);
+            mUserToDoItem.setTitle(mUserEnteredText);
         }
 //        mUserToDoItem.setLastEdited(mLastEdited);
         if(mUserReminderDate!=null){
@@ -556,9 +556,13 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
             calendar.set(Calendar.SECOND, 0);
             mUserReminderDate = calendar.getTime();
         }
-        mUserToDoItem.setHasReminder(mUserHasReminder);
-        mUserToDoItem.setToDoDate(mUserReminderDate);
-        mUserToDoItem.setTodoColor(mUserColor);
+        if (mUserHasReminder) {
+            mUserToDoItem.setRemindAt(mUserReminderDate);
+        } else {
+            mUserToDoItem.setRemindAt(null);
+        }
+
+//        mUserToDoItem.setTodoColor(mUserColor);
         i.putExtra(MainActivity.TODOITEM, mUserToDoItem);
         i.putExtra(MainActivity.TODOITEM_ID, mUserToDoItemId);
         setResult(result, i);
@@ -567,7 +571,7 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
     @Override
     public void onBackPressed() {
         if(mUserReminderDate.before(new Date())){
-            mUserToDoItem.setToDoDate(null);
+            mUserToDoItem.setRemindAt(null);
         }
         makeResult(RESULT_OK);
         super.onBackPressed();

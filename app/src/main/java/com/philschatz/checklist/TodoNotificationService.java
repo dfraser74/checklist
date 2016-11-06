@@ -14,7 +14,7 @@ public class TodoNotificationService extends IntentService {
     public static final String TODOTEXT = "com.avjindersekhon.todonotificationservicetext";
     public static final String TODOUUID = "com.avjindersekhon.todonotificationserviceuuid";
     private String mTodoText;
-    private UUID mTodoUUID;
+    private String mTodoUUID;
     private Context mContext;
 
     public TodoNotificationService(){
@@ -23,7 +23,7 @@ public class TodoNotificationService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         mTodoText = intent.getStringExtra(TODOTEXT);
-        mTodoUUID = (UUID)intent.getSerializableExtra(TODOUUID);
+        mTodoUUID = intent.getStringExtra(TODOUUID);
 
         Log.d("OskarSchindler", "onHandleIntent called");
         NotificationManager manager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
