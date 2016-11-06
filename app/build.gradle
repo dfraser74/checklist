@@ -47,6 +47,7 @@ dependencies {
 
     // https://github.com/firebase/FirebaseUI-Android/blob/master/database/src/main/java/com/firebase/ui/database/FirebaseRecyclerAdapter.java
     compile 'com.firebaseui:firebase-ui-database:1.0.0'
+    compile 'com.google.android.gms:play-services-appindexing:9.8.0'
 }
 
 apply plugin: 'com.google.gms.google-services'
