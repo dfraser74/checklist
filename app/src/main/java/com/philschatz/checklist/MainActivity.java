@@ -43,6 +43,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Date;
 
+/*
+Notes for what needs to be worked on:
+
+- [ ] support multiple lists
+- [ ] support multiple item types (for counting calories)
+- [ ] store lastUpdated times
+- [ ] create a log of changes (for export later)
+- [ ] allow sharing lists
+- [ ] reorder items
+- [ ] add snooze button for homescreen reminder
+ */
+
 public class MainActivity extends AppCompatActivity {
     private RecyclerViewEmptySupport mRecyclerView;
     private FloatingActionButton mAddToDoItemFAB;
@@ -197,8 +209,8 @@ public class MainActivity extends AppCompatActivity {
         editor.putBoolean(CHANGE_OCCURED, false);
         editor.apply();
 
-        // /Users/[myusername]/Library/Android/sdk/extras/google/google_play_services/docs/reference/ Firebase Javadocs
-        databaseReference = FirebaseDatabase.getInstance().getReference().child("lists").child("sandbox").child("items");
+        final DatabaseReference root = FirebaseDatabase.getInstance().getReference();
+        databaseReference = root.child("lists").child("sandbox").child("items");
 
 
 

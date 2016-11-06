@@ -44,6 +44,7 @@ public class AboutActivity extends AppCompatActivity {
         Intent i = getIntent();
 //        mId = (UUID)i.getSerializableExtra(TodoNotificationService.TODOUUID);
 
+        // If this line breaks, see https://stackoverflow.com/questions/26788464/how-to-change-color-of-the-back-arrow-in-the-new-material-theme#26837072
         final Drawable backArrow = getResources().getDrawable(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
         if(backArrow!=null){
             backArrow.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
