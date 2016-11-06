@@ -227,16 +227,16 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
         mToDoSendFloatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                hideKeyboard(mToDoTextBodyEditText);
                 if(mUserReminderDate!=null && mUserReminderDate.before(new Date())){
                     app.send(this, "Action", "Date in the Past");
-                    makeResult(RESULT_CANCELED);
+//                    makeResult(RESULT_CANCELED);
                 }
                 else{
                     app.send(this, "Action", "Make Todo");
                     makeResult(RESULT_OK);
+                    finish();
                 }
-                hideKeyboard(mToDoTextBodyEditText);
-                finish();
             }
         });
 

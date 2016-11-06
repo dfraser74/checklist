@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.google.gms.google-services'
 
 android {
 //    signingConfigs {
@@ -33,7 +32,7 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.google.android.gms:play-services-analytics:9.0.0'
+    compile 'com.google.android.gms:play-services-analytics:9.8.0'
     compile 'uk.co.chrisjenx:calligraphy:2.1.0'
     compile 'com.github.ganfra:material-spinner:1.1.0'
     compile 'com.wdullaer:materialdatetimepicker:1.5.1'
@@ -43,9 +42,11 @@ dependencies {
     compile 'com.android.support:design:23.1.0'
     compile 'com.android.support:appcompat-v7:23.1.0'
     compile 'com.android.support:support-v13:23.1.0'
-    compile 'com.google.firebase:firebase-core:9.0.0'
-    compile 'com.google.firebase:firebase-database:9.0.0'
-    compile 'com.google.firebase:firebase-storage:9.0.0'
+    compile 'com.google.firebase:firebase-core:9.8.0'
+    compile 'com.google.firebase:firebase-database:9.8.0'
+
+    // https://github.com/firebase/FirebaseUI-Android/blob/master/database/src/main/java/com/firebase/ui/database/FirebaseRecyclerAdapter.java
+    compile 'com.firebaseui:firebase-ui-database:1.0.0'
 }
 
 apply plugin: 'com.google.gms.google-services'
