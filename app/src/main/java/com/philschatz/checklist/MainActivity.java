@@ -4,6 +4,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -26,6 +27,7 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.amulyakhare.textdrawable.util.ColorGenerator;
@@ -41,6 +43,7 @@ import org.json.JSONException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
@@ -48,8 +51,9 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton mAddToDoItemFAB;
     private ArrayList<ToDoItem> mToDoItemsArrayList;
     private CoordinatorLayout mCoordLayout;
-    public static final String TODOITEM = "com.philschatz.checklist.MainActivity";
-    private BasicListAdapter adapter;
+    public static final String TODOITEM = "com.philschatz.checklist.MainActivity.theToDoItem";
+    public static final String TODOITEM_ID = "com.philschatz.checklist.MainActivity.theToDoItemId";
+    private ToDoItemAdapter adapter;
     private static final int REQUEST_ID_TODO_ITEM = 100;
     private ToDoItem mJustDeletedToDoItem;
     private int mIndexOfDeletedToDoItem;
@@ -76,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
     };
     // /Users/[myusername]/Library/Android/sdk/extras/google/google_play_services/docs/reference/ Firebase Javadoc
     private DatabaseReference databaseReference;
-
+    private static final String TAG = "ToDoItemListActivity";
 
 
 
@@ -196,59 +200,14 @@ public class MainActivity extends AppCompatActivity {
         editor.apply();
 
         // /Users/[myusername]/Library/Android/sdk/extras/google/google_play_services/docs/reference/ Firebase Javadocs
-        databaseReference = FirebaseDatabase.getInstance().getReference();
-        databaseReference.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                ToDoItem item = dataSnapshot.getValue(ToDoItem.class);
-                item.firebaseKey = dataSnapshot.getKey();
-
-                mToDoItemsArrayList.add(item);
-                adapter.notifyItemInserted(mToDoItemsArrayList.size() - 1);
-            }
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                ToDoItem item = dataSnapshot.getValue(ToDoItem.class);
-                item.firebaseKey = dataSnapshot.getKey();
-//                getAllTask(dataSnapshot);
-                //adapter.notifyItemChanged();
-
-                int position = mToDoItemsArrayList.indexOf(item);
-                if (position < 0) {
-                    throw new RuntimeException("BUG: could not find item in list");
-                }
-                mToDoItemsArrayList.set(position, item);
-                adapter.notifyItemChanged(position, item);
-            }
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-//                taskDeletion(dataSnapshot);
-                ToDoItem item = dataSnapshot.getValue(ToDoItem.class);
-                item.firebaseKey = dataSnapshot.getKey();
-//                getAllTask(dataSnapshot);
-                //adapter.notifyItemChanged();
-
-                int position = mToDoItemsArrayList.indexOf(item);
-                mToDoItemsArrayList.remove(position);
-                adapter.notifyItemRemoved(position);
-            }
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-                ToDoItem item = dataSnapshot.getValue(ToDoItem.class);
-                item.firebaseKey = dataSnapshot.getKey();
-                // PHIL : this needs to use the float field to determine the order
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
+        databaseReference = FirebaseDatabase.getInstance().getReference().child("lists").child("sandbox").child("items");
 
 
 
 
-        storeRetrieveData = new StoreRetrieveData(this, FILENAME);
-        mToDoItemsArrayList =  getLocallyStoredData(storeRetrieveData);
-        adapter = new BasicListAdapter(databaseReference, mToDoItemsArrayList);
+//        storeRetrieveData = new StoreRetrieveData(this, FILENAME);
+//        mToDoItemsArrayList =  getLocallyStoredData(storeRetrieveData);
+        adapter = new ToDoItemAdapter(this, databaseReference);
         setAlarms();
 
 
@@ -292,6 +251,8 @@ public class MainActivity extends AppCompatActivity {
                 //noinspection ResourceType
 //                String color = getResources().getString(R.color.primary_ligher);
                 newTodo.putExtra(TODOITEM, item);
+                // new items do not have a Firebase id yet  TODO PHIL Maybe this should be the point when they get an id
+                newTodo.putExtra(TODOITEM_ID, (String) null);
 //                View decorView = getWindow().getDecorView();
 //                View navView= decorView.findViewById(android.R.id.navigationBarBackground);
 //                View statusView = decorView.findViewById(android.R.id.statusBarBackground);
@@ -412,6 +373,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(resultCode!= RESULT_CANCELED && requestCode == REQUEST_ID_TODO_ITEM){
             ToDoItem item =(ToDoItem) data.getSerializableExtra(TODOITEM);
+            String itemId = data.getStringExtra(TODOITEM_ID);
+
             if(item.getToDoText().length()<=0){
                 return;
             }
@@ -425,21 +388,21 @@ public class MainActivity extends AppCompatActivity {
 //                Log.d("OskarSchindler", "Alarm Created: "+item.getToDoText()+" at "+item.getToDoDate());
             }
 
-            for(int i = 0; i<mToDoItemsArrayList.size();i++){
-                if(item.getIdentifier().equals(mToDoItemsArrayList.get(i).getIdentifier())){
-
-//                    mToDoItemsArrayList.set(i, item);
-//                    existed = true;
-//                    adapter.notifyDataSetChanged();
-//                    DatabaseReference child = databaseReference.child((item.firebaseKey));
-//                    child.setValue(item);
-                    break;
-                }
-            }
-//            if(!existed) {
-//                addToDataStore(item);
+//            for(int i = 0; i<mToDoItemsArrayList.size();i++){
+//                if(item.getIdentifier().equals(mToDoItemsArrayList.get(i).getIdentifier())){
+//
+////                    mToDoItemsArrayList.set(i, item);
+////                    existed = true;
+////                    adapter.notifyDataSetChanged();
+////                    DatabaseReference child = databaseReference.child((item.firebaseKey));
+////                    child.setValue(item);
+//                    break;
+//                }
 //            }
-            addToDataStore(item);
+////            if(!existed) {
+////                addToDataStore(item);
+////            }
+            addToDataStore(item, itemId);
 
         }
     }
@@ -468,10 +431,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void addToDataStore(ToDoItem item){
+    private void addToDataStore(ToDoItem item, String itemId){
         // append a new item or edit an existing item
-        if (item.firebaseKey != null) {
-            databaseReference.child(item.firebaseKey).setValue(item);
+        if (itemId != null) {
+            databaseReference.child(itemId).setValue(item);
         } else {
             databaseReference.push().setValue(item);
         }
@@ -492,25 +455,143 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public class BasicListAdapter extends RecyclerView.Adapter<BasicListAdapter.ViewHolder> implements ItemTouchHelperClass.ItemTouchHelperAdapter{
-        private DatabaseReference databaseReference;
-        private ArrayList<ToDoItem> items;
 
+    private class ToDoItemAdapter extends RecyclerView.Adapter<ToDoItemAdapter.ViewHolder> implements ItemTouchHelperClass.ItemTouchHelperAdapter {
+
+        private Context mContext;
+        private DatabaseReference mDatabaseReference;
+        private ChildEventListener mChildEventListener;
+
+        private List<String> mToDoItemIds = new ArrayList<>();
+        private List<ToDoItem> mToDoItems = new ArrayList<>();
+
+        public ToDoItemAdapter(final Context context, DatabaseReference ref) {
+            mContext = context;
+            mDatabaseReference = ref;
+
+            // Create child event listener
+            // [START child_event_listener_recycler]
+            ChildEventListener childEventListener = new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
+                    Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
+
+                    // A new comment has been added, add it to the displayed list
+                    ToDoItem comment = dataSnapshot.getValue(ToDoItem.class);
+
+                    // [START_EXCLUDE]
+                    // Update RecyclerView
+                    mToDoItemIds.add(dataSnapshot.getKey());
+                    mToDoItems.add(comment);
+                    notifyItemInserted(mToDoItems.size() - 1);
+                    // [END_EXCLUDE]
+                }
+
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
+                    Log.d(TAG, "onChildChanged:" + dataSnapshot.getKey());
+
+                    // A comment has changed, use the key to determine if we are displaying this
+                    // comment and if so displayed the changed comment.
+                    ToDoItem newToDoItem = dataSnapshot.getValue(ToDoItem.class);
+                    String commentKey = dataSnapshot.getKey();
+
+                    // [START_EXCLUDE]
+                    int commentIndex = mToDoItemIds.indexOf(commentKey);
+                    if (commentIndex > -1) {
+                        // Replace with the new data
+                        mToDoItems.set(commentIndex, newToDoItem);
+
+                        // Update the RecyclerView
+                        notifyItemChanged(commentIndex);
+                    } else {
+                        Log.w(TAG, "onChildChanged:unknown_child:" + commentKey);
+                    }
+                    // [END_EXCLUDE]
+                }
+
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
+                    Log.d(TAG, "onChildRemoved:" + dataSnapshot.getKey());
+
+                    // A comment has changed, use the key to determine if we are displaying this
+                    // comment and if so remove it.
+                    String commentKey = dataSnapshot.getKey();
+
+                    // [START_EXCLUDE]
+                    int commentIndex = mToDoItemIds.indexOf(commentKey);
+                    if (commentIndex > -1) {
+                        // Remove data from the list
+                        mToDoItemIds.remove(commentIndex);
+                        mToDoItems.remove(commentIndex);
+
+                        // Update the RecyclerView
+                        notifyItemRemoved(commentIndex);
+                    } else {
+                        Log.w(TAG, "onChildRemoved:unknown_child:" + commentKey);
+                    }
+                    // [END_EXCLUDE]
+                }
+
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
+                    Log.d(TAG, "onChildMoved:" + dataSnapshot.getKey());
+
+                    // A comment has changed position, use the key to determine if we are
+                    // displaying this comment and if so move it.
+                    ToDoItem movedToDoItem = dataSnapshot.getValue(ToDoItem.class);
+                    String commentKey = dataSnapshot.getKey();
+
+                    // ...
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.w(TAG, "postToDoItems:onCancelled", databaseError.toException());
+                    Toast.makeText(mContext, "Failed to load items.",
+                            Toast.LENGTH_SHORT).show();
+                }
+            };
+            ref.addChildEventListener(childEventListener);
+            // [END child_event_listener_recycler]
+
+            // Store reference to listener so it can be removed on app stop
+            mChildEventListener = childEventListener;
+        }
+
+//        @Override
+//        public ToDoItemAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+////            Context mContext = parent.getContext();
+//            LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+//            View view = inflater.inflate(R.layout.item_comment, parent, false);
+//            return new ToDoItemAdapter.ViewHolder(view);
+//        }
+//
+//        @Override
+//        public void onBindViewHolder(ToDoItemAdapter.ViewHolder holder, int position) {
+//            ToDoItem comment = mToDoItems.get(position);
+//            holder.authorView.setText(comment.author);
+//            holder.bodyView.setText(comment.text);
+//        }
+
+
+        // ItemTouchHelperAdapter methods
         @Override
         public void onItemMoved(int fromPosition, int toPosition) {
            if(fromPosition<toPosition){
                for(int i=fromPosition; i<toPosition; i++){
-                   Collections.swap(items, i, i+1);
+                   Collections.swap(mToDoItems, i, i+1);
+                   Collections.swap(mToDoItemIds, i, i+1);
                }
            }
             else{
                for(int i=fromPosition; i > toPosition; i--){
-                   Collections.swap(items, i, i-1);
+                   Collections.swap(mToDoItems, i, i-1);
+                   Collections.swap(mToDoItemIds, i, i-1);
                }
            }
             notifyItemMoved(fromPosition, toPosition);
         }
-
         @Override
         public void onItemRemoved(final int position) {
             //Remove this line if not using Google Analytics
@@ -518,9 +599,10 @@ public class MainActivity extends AppCompatActivity {
 
 //            mJustDeletedToDoItem =  items.remove(position);
 //            mIndexOfDeletedToDoItem = position;
-            mJustDeletedToDoItem = items.get(position);
+            mJustDeletedToDoItem = mToDoItems.get(position);
+            String justDeletedToDoItemId = mToDoItemIds.get(position);
             mIndexOfDeletedToDoItem = position;
-            DatabaseReference child = databaseReference.child(mJustDeletedToDoItem.firebaseKey);
+            DatabaseReference child = databaseReference.child(justDeletedToDoItemId);
             child.removeValue();
 
             Intent i = new Intent(MainActivity.this,TodoNotificationService.class);
@@ -550,26 +632,28 @@ public class MainActivity extends AppCompatActivity {
                     }).show();
         }
 
+
+
         @Override
-        public BasicListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_circle_try, parent, false);
+        public ToDoItemAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(mContext).inflate(R.layout.list_circle_try, parent, false);
             return new ViewHolder(v);
         }
 
         @Override
-        public void onBindViewHolder(final BasicListAdapter.ViewHolder holder, final int position) {
-            ToDoItem item = items.get(position);
+        public void onBindViewHolder(final ToDoItemAdapter.ViewHolder holder, final int position) {
+            ToDoItem item = mToDoItems.get(position);
 //            if(item.getToDoDate()!=null && item.getToDoDate().before(new Date())){
 //                item.setToDoDate(null);
 //            }
-            SharedPreferences sharedPreferences = getSharedPreferences(THEME_PREFERENCES, MODE_PRIVATE);
+            SharedPreferences sharedPreferences = mContext.getSharedPreferences(THEME_PREFERENCES, MODE_PRIVATE);
             //Background color for each to-do item. Necessary for night/day mode
             int bgColor;
             //color of title text in our to-do item. White for night mode, dark gray for day mode
             int todoTextColor;
             if(sharedPreferences.getString(THEME_SAVED, LIGHTTHEME).equals(LIGHTTHEME)){
                 bgColor = Color.WHITE;
-                todoTextColor = getResources().getColor(R.color.secondary_text);
+                todoTextColor = mContext.getResources().getColor(R.color.secondary_text);
             }
             else{
                 bgColor = Color.DKGRAY;
@@ -621,16 +705,16 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
-        @Override
+    @Override
         public int getItemCount() {
-            return items.size();
+            return mToDoItems.size();
         }
 
-        BasicListAdapter(DatabaseReference databaseReference, ArrayList<ToDoItem> items){
-            this.databaseReference = databaseReference;
-            this.items = items;
+        public void cleanupListener() {
+            if (mChildEventListener != null) {
+                mDatabaseReference.removeEventListener(mChildEventListener);
+            }
         }
-
 
         @SuppressWarnings("deprecation")
         public class ViewHolder extends RecyclerView.ViewHolder{
@@ -649,9 +733,13 @@ public class MainActivity extends AppCompatActivity {
                 v.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        ToDoItem item = items.get(ViewHolder.this.getAdapterPosition());
+                        int position = ViewHolder.this.getAdapterPosition();
+                        ToDoItem item = mToDoItems.get(position);
+                        String itemId = mToDoItemIds.get(position);
+
                         Intent i = new Intent(MainActivity.this, AddToDoActivity.class);
                         i.putExtra(TODOITEM, item);
+                        i.putExtra(TODOITEM_ID, itemId);
                         startActivityForResult(i, REQUEST_ID_TODO_ITEM);
                     }
                 });
@@ -664,7 +752,9 @@ public class MainActivity extends AppCompatActivity {
 
 
         }
-    }
+
+}
+
 
     //Used when using custom fonts
 //    @Override
@@ -672,24 +762,24 @@ public class MainActivity extends AppCompatActivity {
 //        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
 //    }
 
-    private void saveDate(){
-        try {
-            storeRetrieveData.saveToFile(mToDoItemsArrayList);
-        } catch (JSONException | IOException e) {
-            e.printStackTrace();
-        }
+//    private void saveDate(){
+//        try {
+//            storeRetrieveData.saveToFile(mToDoItemsArrayList);
+//        } catch (JSONException | IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//    }
 
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        try {
-            storeRetrieveData.saveToFile(mToDoItemsArrayList);
-        } catch (JSONException | IOException e) {
-            e.printStackTrace();
-        }
-    }
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        try {
+//            storeRetrieveData.saveToFile(mToDoItemsArrayList);
+//        } catch (JSONException | IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
 
     @Override

@@ -50,6 +50,7 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
     private Button mChooseDateButton;
     private Button mChooseTimeButton;
     private ToDoItem mUserToDoItem;
+    private String mUserToDoItemId;
     private FloatingActionButton mToDoSendFloatingActionButton;
     public static final String DATE_FORMAT = "MMM d, yyyy";
     public static final String DATE_FORMAT_MONTH_DAY = "MMM d";
@@ -115,6 +116,7 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
 
 
         mUserToDoItem = (ToDoItem)getIntent().getSerializableExtra(MainActivity.TODOITEM);
+        mUserToDoItemId = getIntent().getStringExtra(MainActivity.TODOITEM_ID);
 
         mUserEnteredText = mUserToDoItem.getToDoText();
         mUserHasReminder = mUserToDoItem.hasReminder();
@@ -558,6 +560,7 @@ public class AddToDoActivity extends AppCompatActivity implements  DatePickerDia
         mUserToDoItem.setToDoDate(mUserReminderDate);
         mUserToDoItem.setTodoColor(mUserColor);
         i.putExtra(MainActivity.TODOITEM, mUserToDoItem);
+        i.putExtra(MainActivity.TODOITEM_ID, mUserToDoItemId);
         setResult(result, i);
     }
 

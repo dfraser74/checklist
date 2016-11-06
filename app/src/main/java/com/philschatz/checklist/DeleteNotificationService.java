@@ -22,6 +22,7 @@ public class DeleteNotificationService extends IntentService {
         storeRetrieveData = new StoreRetrieveData(this, MainActivity.FILENAME);
         UUID todoID = (UUID)intent.getSerializableExtra(TodoNotificationService.TODOUUID);
 
+        //TODO: PHIL use the firebase key instead of the UUID. That way it can be pulled directly from the DB maybe, yeah?
         mToDoItems = loadData();
         if(mToDoItems!=null){
             for(ToDoItem item : mToDoItems){
