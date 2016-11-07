@@ -24,7 +24,7 @@ import java.util.Date;
 import fr.ganfra.materialspinner.MaterialSpinner;
 
 public class ReminderActivity extends AppCompatActivity {
-    public static final String EXIT = "com.avjindersekhon.exit";
+    public static final String EXIT = "com.philschatz.checklist.exit";
     String theme;
     AnalyticsApplication app;
     private TextView mtoDoTextTextView;

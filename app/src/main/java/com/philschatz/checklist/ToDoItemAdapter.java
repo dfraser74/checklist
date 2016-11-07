@@ -132,8 +132,8 @@ class ToDoItemAdapter extends FirebaseRecyclerAdapter<ToDoItem, ToDoItemViewHold
         // Save
         mJustCompletedToDoItemRef.setValue(mJustCompletedToDoItem);
 
-        Intent i = new Intent(mContext, TodoNotificationService.class);
-        mContext.deleteAlarm(i, mJustCompletedToDoItem.getIdentifier().hashCode());
+//        Intent i = new Intent(mContext, TodoNotificationService.class);
+//        mContext.deleteAlarm(i, mJustCompletedToDoItem.getIdentifier().hashCode());
 
         String toShow = mJustCompletedToDoItem.getTitle();
         toShow = (toShow.length() > 20) ? toShow.substring(0, 20) + "..." : toShow;
@@ -145,12 +145,12 @@ class ToDoItemAdapter extends FirebaseRecyclerAdapter<ToDoItem, ToDoItemViewHold
 
                         //Comment the line below if not using Google Analytics
                         mainActivity.app.send(this, "Action", "UNDO Pressed");
-                        if (mJustCompletedToDoItem.getRemindAt() != null) {
-                            Intent i = new Intent(mContext, TodoNotificationService.class);
-                            i.putExtra(TodoNotificationService.TODOTEXT, mJustCompletedToDoItem.getTitle());
-                            i.putExtra(TodoNotificationService.TODOUUID, mJustCompletedToDoItem.getIdentifier());
-                            mContext.createAlarm(i, mJustCompletedToDoItem.getIdentifier().hashCode(), mJustCompletedToDoItem.getRemindAt().getTime());
-                        }
+//                        if (mJustCompletedToDoItem.getRemindAt() != null) {
+//                            Intent i = new Intent(mContext, TodoNotificationService.class);
+//                            i.putExtra(TodoNotificationService.TODOTEXT, mJustCompletedToDoItem.getTitle());
+//                            i.putExtra(TodoNotificationService.TODOUUID, mJustCompletedToDoItem.getIdentifier());
+//                            mContext.createAlarm(i, mJustCompletedToDoItem.getIdentifier().hashCode(), mJustCompletedToDoItem.getRemindAt().getTime());
+//                        }
                         // TODO: PHIL Insertion order should be a float so we can always insert between 2 items
 
                         // Toggle completedAt

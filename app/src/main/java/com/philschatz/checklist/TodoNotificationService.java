@@ -9,15 +9,19 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
+import java.util.Date;
+
 /*
  * This generates the homescreen notification for checklist items that have a reminder
  */
 public class TodoNotificationService extends IntentService {
-    public static final String TODOTEXT = "com.avjindersekhon.todonotificationservicetext";
-    public static final String TODOUUID = "com.avjindersekhon.todonotificationserviceuuid";
+    public static final String TODOTEXT = "com.philschatz.checklist.todonotificationservicetext";
+    public static final String TODOUUID = "com.philschatz.checklist.todonotificationserviceuuid";
+    public static final String TODOREMINDAT = "com.philschatz.checklist.todonotificationserviceremindat";
     private String mTodoText;
     private String mTodoUUID;
     private Context mContext;
+    private Date mTodoRemindAt;
 
     public TodoNotificationService() {
         super("TodoNotificationService");
@@ -27,6 +31,10 @@ public class TodoNotificationService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         mTodoText = intent.getStringExtra(TODOTEXT);
         mTodoUUID = intent.getStringExtra(TODOUUID);
+        mTodoRemindAt = (Date) intent.getSerializableExtra(TODOREMINDAT);
+        if (mTodoRemindAt == null) {
+            throw new RuntimeException("BUG: Missing remindAt");
+        }
 
         Log.d("OskarSchindler", "onHandleIntent called");
         NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
@@ -39,7 +47,10 @@ public class TodoNotificationService extends IntentService {
         snoozeIntent.setData(Uri.parse("http://philschatz.com"));
         PendingIntent snoozePendingIntent = PendingIntent.getActivity(this, 0, snoozeIntent, 0);
 
-        Notification.Action snoozeAction = new Notification.Action.Builder(R.drawable.ic_snooze_white_24dp, "+5 min", snoozePendingIntent)
+        Notification.Action snoozeAction = new Notification.Action.Builder(R.drawable.ic_snooze_white_24dp, "5 min", snoozePendingIntent)
+                .build();
+
+        Notification.Action snoozeDayAction = new Notification.Action.Builder(R.drawable.ic_snooze_white_24dp, "1 day", snoozePendingIntent)
                 .build();
 
 
@@ -58,7 +69,9 @@ public class TodoNotificationService extends IntentService {
                 .setDeleteIntent(PendingIntent.getService(this, mTodoUUID.hashCode(), deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT))
                 .setContentIntent(PendingIntent.getActivity(this, mTodoUUID.hashCode(), i, PendingIntent.FLAG_UPDATE_CURRENT))
                 .addAction(snoozeAction)
+                .addAction(snoozeDayAction)
                 .addAction(completeAction)
+                .setWhen(mTodoRemindAt.getTime())
                 .build();
 
         manager.notify(100, notification);

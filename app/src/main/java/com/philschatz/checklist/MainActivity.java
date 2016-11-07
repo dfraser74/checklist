@@ -1,7 +1,5 @@
 package com.philschatz.checklist;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -13,12 +11,9 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -27,9 +22,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
-
-import java.util.ArrayList;
-import java.util.Date;
 
 /*
 Notes for what needs to be worked on:
@@ -47,22 +39,20 @@ public class MainActivity extends AppCompatActivity {
     public static final String TODOITEM = "com.philschatz.checklist.MainActivity.theToDoItem";
     public static final String TODOITEM_ID = "com.philschatz.checklist.MainActivity.theToDoItemId";
     public static final String FILENAME = "todoitems.json";
-    public static final String SHARED_PREF_DATA_SET_CHANGED = "com.avjindersekhon.datasetchanged";
-    public static final String CHANGE_OCCURED = "com.avjinder.changeoccured";
-    public static final String THEME_PREFERENCES = "com.avjindersekhon.themepref";
-    public static final String RECREATE_ACTIVITY = "com.avjindersekhon.recreateactivity";
-    public static final String THEME_SAVED = "com.avjindersekhon.savedtheme";
-    public static final String DARKTHEME = "com.avjindersekon.darktheme";
-    public static final String LIGHTTHEME = "com.avjindersekon.lighttheme";
+    public static final String SHARED_PREF_DATA_SET_CHANGED = "com.philschatz.checklist.datasetchanged";
+    public static final String CHANGE_OCCURED = "com.philschatz.checklist.changeoccured";
+    public static final String THEME_PREFERENCES = "com.philschatz.checklist.themepref";
+    public static final String RECREATE_ACTIVITY = "com.philschatz.checklist.recreateactivity";
+    public static final String THEME_SAVED = "com.philschatz.checklist.savedtheme";
+    public static final String DARKTHEME = "com.philschatz.checklist.darktheme";
+    public static final String LIGHTTHEME = "com.philschatz.checklist.lighttheme";
     public static final int REQUEST_ID_TODO_ITEM = 100;
     private static final String TAG = "ToDoItemListActivity";
 
     public ItemTouchHelper itemTouchHelper;
     private RecyclerViewEmptySupport mRecyclerView;
     private FloatingActionButton mAddToDoItemFAB;
-    private ArrayList<ToDoItem> mToDoItemsArrayList;
     CoordinatorLayout mCoordLayout;
-    private StoreRetrieveData storeRetrieveData;
     private CustomRecyclerScrollViewListener customRecyclerScrollViewListener;
     private int mTheme = -1;
     private String theme = "name_of_the_theme";
@@ -124,21 +114,24 @@ public class MainActivity extends AppCompatActivity {
         AppIndex.AppIndexApi.start(client, getIndexApiAction());
     }
 
-    private void setAlarms() {
-        if (mToDoItemsArrayList != null) {
-            for (ToDoItem item : mToDoItemsArrayList) {
-                if (item.getRemindAt() != null) {
-                    if (item.getRemindAt().before(new Date())) {
-                        item.setRemindAt(null);
-                        continue;
-                    }
-                    Intent i = new Intent(this, TodoNotificationService.class);
-                    i.putExtra(TodoNotificationService.TODOUUID, item.getIdentifier());
-                    i.putExtra(TodoNotificationService.TODOTEXT, item.getTitle());
-                    createAlarm(i, item.getIdentifier().hashCode(), item.getRemindAt().getTime());
-                }
-            }
-        }
+    private void setAlarms(Query databaseRef) {
+        databaseRef.addChildEventListener(new ToDoItemAlarmListener(this));
+
+        // TODO: This should be set in the RecyclerAdapter whenever an item is added or changed
+//        if (mToDoItemsArrayList != null) {
+//            for (ToDoItem item : mToDoItemsArrayList) {
+//                if (item.getRemindAt() != null) {
+//                    if (item.getRemindAt().before(new Date())) {
+//                        item.setRemindAt(null);
+//                        continue;
+//                    }
+//                    Intent i = new Intent(this, TodoNotificationService.class);
+//                    i.putExtra(TodoNotificationService.TODOUUID, item.getIdentifier());
+//                    i.putExtra(TodoNotificationService.TODOTEXT, item.getTitle());
+//                    createAlarm(i, item.getIdentifier().hashCode(), item.getRemindAt().getTime());
+//                }
+//            }
+//        }
     }
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -169,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
         databaseReference = root.child("lists").child("sandbox").child("items");
 
 
-        setAlarms();
+        setAlarms(databaseReference);
 
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -187,32 +180,9 @@ public class MainActivity extends AppCompatActivity {
                 Intent newTodo = new Intent(MainActivity.this, AddToDoActivity.class);
                 ToDoItem item = new ToDoItem();
                 item.setTitle(""); // This way the editor will start up blank
-                //noinspection ResourceType
-//                String color = getResources().getString(R.color.primary_ligher);
                 newTodo.putExtra(TODOITEM, item);
                 // new items do not have a Firebase id yet  TODO PHIL Maybe this should be the point when they get an id
                 newTodo.putExtra(TODOITEM_ID, (String) null);
-//                View decorView = getWindow().getDecorView();
-//                View navView= decorView.findViewById(android.R.id.navigationBarBackground);
-//                View statusView = decorView.findViewById(android.R.id.statusBarBackground);
-//                Pair<View, String> navBar ;
-//                if(navView!=null){
-//                    navBar = Pair.create(navView, navView.getTransitionName());
-//                }
-//                else{
-//                    navBar = null;
-//                }
-//                Pair<View, String> statusBar= Pair.create(statusView, statusView.getTransitionName());
-//                ActivityOptions options;
-//                if(navBar!=null){
-//                    options = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this, navBar, statusBar);
-//                }
-//                else{
-//                    options = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this, statusBar);
-//                }
-
-//                startActivity(new Intent(MainActivity.this, TestLayout.class), options.toBundle());
-//                startActivityForResult(newTodo, REQUEST_ID_TODO_ITEM, options.toBundle());
 
                 startActivityForResult(newTodo, REQUEST_ID_TODO_ITEM);
             }
@@ -228,26 +198,13 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-
-        customRecyclerScrollViewListener = new CustomRecyclerScrollViewListener() {
-            @Override
-            public void show() {
-
-                mAddToDoItemFAB.animate().translationY(0).setInterpolator(new DecelerateInterpolator(2)).start();
-            }
-
-            @Override
-            public void hide() {
-
-                CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) mAddToDoItemFAB.getLayoutParams();
-                int fabMargin = lp.bottomMargin;
-                mAddToDoItemFAB.animate().translationY(mAddToDoItemFAB.getHeight() + fabMargin).setInterpolator(new AccelerateInterpolator(2.0f)).start();
-            }
-        };
+        // Note: Set this to an instance variable so it can be destroyed later
+        customRecyclerScrollViewListener = new FABRecyclerScrollViewListener(mAddToDoItemFAB);
         mRecyclerView.addOnScrollListener(customRecyclerScrollViewListener);
 
 
         // TODO: Checkout android.R.layout.two_line_list_item instead
+        // TODO: Try to sort & filter the list : https://stackoverflow.com/questions/30398247/how-to-filter-a-recyclerview-with-a-searchview#30429439
         Query sortedItems = databaseReference.orderByChild("completedAt");
         ToDoItemAdapter mAdapter = new ToDoItemAdapter(this, this, sortedItems);
 
@@ -262,13 +219,13 @@ public class MainActivity extends AppCompatActivity {
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
-    public void addThemeToSharedPreferences(String theme) {
-        SharedPreferences sharedPreferences = getSharedPreferences(THEME_PREFERENCES, MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(THEME_SAVED, theme);
-        editor.apply();
-    }
-
+//    public void addThemeToSharedPreferences(String theme) {
+//        SharedPreferences sharedPreferences = getSharedPreferences(THEME_PREFERENCES, MODE_PRIVATE);
+//        SharedPreferences.Editor editor = sharedPreferences.edit();
+//        editor.putString(THEME_SAVED, theme);
+//        editor.apply();
+//    }
+//
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -319,13 +276,13 @@ public class MainActivity extends AppCompatActivity {
             }
             boolean existed = false;
 
-            if (item.getRemindAt() != null) {
-                Intent i = new Intent(this, TodoNotificationService.class);
-                i.putExtra(TodoNotificationService.TODOTEXT, item.getTitle());
-                i.putExtra(TodoNotificationService.TODOUUID, item.getIdentifier());
-                createAlarm(i, item.getIdentifier().hashCode(), item.getRemindAt().getTime());
-                Log.d(TAG, "Alarm Created: "+item.getTitle()+" at "+item.getRemindAt());
-            }
+//            if (item.getRemindAt() != null) {
+//                Intent i = new Intent(this, TodoNotificationService.class);
+//                i.putExtra(TodoNotificationService.TODOTEXT, item.getTitle());
+//                i.putExtra(TodoNotificationService.TODOUUID, item.getIdentifier());
+//                createAlarm(i, item.getIdentifier().hashCode(), item.getRemindAt().getTime());
+//                Log.d(TAG, "Alarm Created: "+item.getTitle()+" at "+item.getRemindAt());
+//            }
 
             // append a new item or edit an existing item
             // TODO: Update the item directly without using databaseReference here
@@ -338,31 +295,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private AlarmManager getAlarmManager() {
-        return (AlarmManager) getSystemService(ALARM_SERVICE);
-    }
-
-    private boolean doesPendingIntentExist(Intent i, int requestCode) {
-        PendingIntent pi = PendingIntent.getService(this, requestCode, i, PendingIntent.FLAG_NO_CREATE);
-        return pi != null;
-    }
-
-    void createAlarm(Intent i, int requestCode, long timeInMillis) {
-        AlarmManager am = getAlarmManager();
-        PendingIntent pi = PendingIntent.getService(this, requestCode, i, PendingIntent.FLAG_UPDATE_CURRENT);
-        am.set(AlarmManager.RTC_WAKEUP, timeInMillis, pi);
-        Log.d(TAG, "createAlarm "+requestCode+" time: "+timeInMillis+" PI "+pi.toString());
-    }
-
-    void deleteAlarm(Intent i, int requestCode) {
-        if (doesPendingIntentExist(i, requestCode)) {
-            PendingIntent pi = PendingIntent.getService(this, requestCode, i, PendingIntent.FLAG_NO_CREATE);
-            pi.cancel();
-            getAlarmManager().cancel(pi);
-            Log.d(TAG, "Alarm PendingIntent Cancelled " + doesPendingIntentExist(i, requestCode));
-        }
-    }
-
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -371,7 +303,7 @@ public class MainActivity extends AppCompatActivity {
         Thing object = new Thing.Builder()
                 .setName("Main Page") // TODO: Define a title for the content shown.
                 // TODO: Make sure this auto-generated URL is correct.
-                .setUrl(Uri.parse("http://[ENTER-YOUR-URL-HERE]"))
+                .setUrl(Uri.parse("http://philschatz.com"))
                 .build();
         return new Action.Builder(Action.TYPE_VIEW)
                 .setObject(object)
