@@ -100,6 +100,11 @@ class ToDoItemAlarmListener implements ChildEventListener {
         i.putExtra(TodoNotificationService.TODO_DB_PATH, dbPath);
 
         if (remindAt != 0L && !hasAlarmForItem) {
+            // If the reminder was set in the past then make sure it appears
+            // (just in case; this could occur when undoing an accidentally-completed item)
+            if (remindAt < System.currentTimeMillis()) {
+                remindAt = System.currentTimeMillis() + 10 * 1000;
+            }
             createAlarm(i, hashCode, remindAt);
         } else if (remindAt == 0L && hasAlarmForItem) {
             deleteAlarm(i, hashCode);

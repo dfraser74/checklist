@@ -71,6 +71,8 @@ class ToDoItemAdapter extends FirebaseRecyclerAdapter<ToDoItem, ToDoItemViewHold
         }
         if (item.isComplete()) {
             holder.mToDoTextview.setPaintFlags(holder.mToDoTextview.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        } else {
+            holder.mToDoTextview.setPaintFlags(0);
         }
 
         //            holder.mColorTextView.setBackgroundColor(Color.parseColor(item.getTodoColor()));

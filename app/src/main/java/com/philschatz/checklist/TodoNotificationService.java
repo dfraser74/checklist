@@ -59,10 +59,11 @@ public class TodoNotificationService extends IntentService {
 
         Log.d("OskarSchindler", "onHandleIntent called");
         NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-//        Intent i = new Intent(this, ReminderActivity.class);
-////        i.putExtra(TodoNotificationService.TODOUUID, mTodoUUID);
-//        i.putExtra(TodoNotificationService.TODOITEMSNAPSHOT, item);
-//        i.putExtra(TodoNotificationService.TODO_DB_PATH, dbPath);
+
+        Intent reminderIntent = new Intent(this, ReminderActivity.class);
+//        reminderIntent.putExtra(TodoNotificationService.TODOUUID, mTodoUUID);
+        reminderIntent.putExtra(TodoNotificationService.TODOITEMSNAPSHOT, item);
+        reminderIntent.putExtra(TodoNotificationService.TODO_DB_PATH, dbPath);
 
         Intent completeIntent = new Intent(this, CompleteNotificationService.class);
         completeIntent.putExtra(TodoNotificationService.TODOITEMSNAPSHOT, item);
@@ -74,16 +75,16 @@ public class TodoNotificationService extends IntentService {
         }
 
         Notification notification = new Notification.Builder(this)
-                .setAutoCancel(true) // hide the notification when an action is performed?
+                .setAutoCancel(false) // hide the notification when an action is performed?
                 .setCategory(Notification.CATEGORY_REMINDER)
                 .setPriority(Notification.PRIORITY_HIGH) // Useful for the heads up notification so people are reminded
                 .setSmallIcon(R.drawable.ic_done_white_24dp)
                 .setContentTitle(item.getTitle())
                 .setContentText("(list name here)")
-                .setAutoCancel(false)
                 .setUsesChronometer(true) // Starts ticking up to show how much more reddit time you're spending (beyond the alotted 20min or whatever)
                 .setDefaults(Notification.DEFAULT_SOUND)
                 .setDeleteIntent(PendingIntent.getService(this, dbPath.hashCode(), completeIntent, PendingIntent.FLAG_UPDATE_CURRENT))
+                .setContentIntent(PendingIntent.getService(this, dbPath.hashCode(), reminderIntent, PendingIntent.FLAG_UPDATE_CURRENT))
                 .addAction(buildSnooze(Snooze2Minutes.class, "2 min", item, dbPath))
                 .addAction(buildSnooze(Snooze20Minutes.class, "20 min", item, dbPath))
                 .addAction(buildSnooze(Snooze1Day.class, "1 day", item, dbPath))

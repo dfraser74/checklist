@@ -56,14 +56,7 @@ public class ReminderActivity extends AppCompatActivity {
 
 
         Intent i = getIntent();
-        String id = i.getStringExtra(TodoNotificationService.TODOUUID);
-        mItem = null;
-        for (ToDoItem toDoItem : mToDoItems) {
-            if (toDoItem.getIdentifier().equals(id)) {
-                mItem = toDoItem;
-                break;
-            }
-        }
+        mItem = (ToDoItem) i.getSerializableExtra(TodoNotificationService.TODOITEMSNAPSHOT);
 
         snoozeOptionsArray = getResources().getStringArray(R.array.snooze_options);
 
