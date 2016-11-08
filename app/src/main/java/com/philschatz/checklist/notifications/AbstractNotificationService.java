@@ -1,7 +1,9 @@
 package com.philschatz.checklist.notifications;
 
 import android.app.IntentService;
+import android.app.NotificationManager;
 import android.content.Intent;
+import android.util.Log;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -31,6 +33,7 @@ public abstract class AbstractNotificationService extends IntentService {
     protected final void onHandleIntent(Intent intent) {
         String dbPath = intent.getStringExtra(TodoNotificationService.TODO_DB_PATH);
         ToDoItem item = (ToDoItem) intent.getSerializableExtra(TodoNotificationService.TODOITEMSNAPSHOT);
+        int hashCode = intent.getIntExtra(TodoNotificationService.NOTIFICATION_ID, dbPath.hashCode());
         DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference(dbPath);
 
         Map<String, Object> props = updatedKeys(item);
@@ -40,6 +43,10 @@ public abstract class AbstractNotificationService extends IntentService {
         }
 
         dbRef.updateChildren(props); // TODO: Add a handler for success/failure
+
+        NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        manager.cancel(hashCode);
+        Log.d(this.getClass().getSimpleName(), "cancelled notification");
     }
 
 }

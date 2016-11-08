@@ -7,6 +7,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.github.curioustechizen.ago.RelativeTimeTextView;
+
 /**
  * This needs to be static because FirebaseAdapter will instantiate this programatically
  */
@@ -20,7 +22,7 @@ class ToDoItemViewHolder extends RecyclerView.ViewHolder {
     LinearLayout linearLayout;
     TextView mToDoTextview;
     ImageView mColorImageView;
-    TextView mTimeTextView;
+    RelativeTimeTextView mTimeTextView;
 //            int color = -1;
 
     public ToDoItemViewHolder(View v) {
@@ -39,7 +41,7 @@ class ToDoItemViewHolder extends RecyclerView.ViewHolder {
             }
         });
         mToDoTextview = (TextView) v.findViewById(R.id.toDoListItemTextview);
-        mTimeTextView = (TextView) v.findViewById(R.id.todoListItemTimeTextView);
+        mTimeTextView = (RelativeTimeTextView) v.findViewById(R.id.todoListItemTimeTextView);
 //                mColorTextView = (TextView)v.findViewById(R.id.toDoColorTextView);
         mColorImageView = (ImageView) v.findViewById(R.id.toDoListItemColorImageView);
         linearLayout = (LinearLayout) v.findViewById(R.id.listItemLinearLayout);

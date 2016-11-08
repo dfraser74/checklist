@@ -43,8 +43,9 @@
 
         <service android:name="com.philschatz.checklist.TodoNotificationService" />
         <service android:name="com.philschatz.checklist.notifications.CompleteNotificationService" />
-        <service android:name="com.philschatz.checklist.notifications.SnoozeFiveMinutes" />
-        <service android:name="com.philschatz.checklist.notifications.SnoozeOneDay" />
+        <service android:name="com.philschatz.checklist.notifications.Snooze2Minutes" />
+        <service android:name="com.philschatz.checklist.notifications.Snooze20Minutes" />
+        <service android:name="com.philschatz.checklist.notifications.Snooze1Day" />
 
         <activity
             android:name="com.philschatz.checklist.SettingsActivity"

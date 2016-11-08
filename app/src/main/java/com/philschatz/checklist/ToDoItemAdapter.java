@@ -100,12 +100,10 @@ class ToDoItemAdapter extends FirebaseRecyclerAdapter<ToDoItem, ToDoItemViewHold
         holder.mColorImageView.setImageDrawable(myDrawable);
         if (item.getCompletedAt() != null) {
             Date time = item.getCompletedAt();
-            CharSequence timeToShow = DateUtils.getRelativeTimeSpanString(time.getTime());
-            holder.mTimeTextView.setText(timeToShow);
+            holder.mTimeTextView.setReferenceTime(time.getTime());
         } else if (item.getRemindAt() != null) {
             Date time = item.getRemindAt();
-            CharSequence timeToShow = DateUtils.getRelativeTimeSpanString(time.getTime());
-            holder.mTimeTextView.setText(timeToShow);
+            holder.mTimeTextView.setReferenceTime(time.getTime());
         }
 
     }
