@@ -42,7 +42,9 @@
             android:label="@string/app_name" />
 
         <service android:name="com.philschatz.checklist.TodoNotificationService" />
-        <service android:name="com.philschatz.checklist.DeleteNotificationService" />
+        <service android:name="com.philschatz.checklist.notifications.CompleteNotificationService" />
+        <service android:name="com.philschatz.checklist.notifications.SnoozeFiveMinutes" />
+        <service android:name="com.philschatz.checklist.notifications.SnoozeOneDay" />
 
         <activity
             android:name="com.philschatz.checklist.SettingsActivity"

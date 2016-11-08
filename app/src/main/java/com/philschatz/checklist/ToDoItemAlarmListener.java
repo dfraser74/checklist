@@ -9,6 +9,7 @@ import android.util.Log;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 
 import java.util.Date;
 
@@ -26,17 +27,17 @@ class ToDoItemAlarmListener implements ChildEventListener {
 
     @Override
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-        setAlarmIfNecessary(dataSnapshot.getValue(ToDoItem.class));
+        setAlarmIfNecessary(dataSnapshot.getValue(ToDoItem.class), dataSnapshot.getRef());
     }
 
     @Override
     public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-        setAlarmIfNecessary(dataSnapshot.getValue(ToDoItem.class));
+        setAlarmIfNecessary(dataSnapshot.getValue(ToDoItem.class), dataSnapshot.getRef());
     }
 
     @Override
     public void onChildRemoved(DataSnapshot dataSnapshot) {
-        setAlarmIfNecessary(dataSnapshot.getValue(ToDoItem.class));
+        setAlarmIfNecessary(dataSnapshot.getValue(ToDoItem.class), dataSnapshot.getRef());
     }
 
     @Override
@@ -49,7 +50,7 @@ class ToDoItemAlarmListener implements ChildEventListener {
         Log.d(TAG, "Database Disconnect");
     }
 
-    private void setAlarmIfNecessary(ToDoItem item) {
+    private void setAlarmIfNecessary(ToDoItem item, DatabaseReference dbRef) {
         // Here are the possible states:
         //  hasReminder &&  hasAlarm -> nothing; (maybe update the alarm)
         //  hasReminder && !hasAlarm -> createAlarm();
@@ -60,15 +61,21 @@ class ToDoItemAlarmListener implements ChildEventListener {
         boolean hasAlarmForItem = hasAlarm(i, hashCode);
         Date remindAt = item.getRemindAt();
 
-        // Only care about reminders when item is not complete and reminder time is after now
-        if (item.getCompletedAt() != null || (remindAt != null && remindAt.before(new Date()))) {
+        // Only care about reminders when item is not complete
+        if (item.getCompletedAt() != null) {
             remindAt = null;
         }
 
+        String dbPath = Utils.getFirebasePath(dbRef);
+        Log.d(TAG, "dbPath=" + dbPath);
         if (remindAt != null && !hasAlarmForItem) {
             i.putExtra(TodoNotificationService.TODOUUID, item.getIdentifier());
             i.putExtra(TodoNotificationService.TODOTEXT, item.getTitle());
             i.putExtra(TodoNotificationService.TODOREMINDAT, item.getRemindAt());
+            // TODO: Replace the previous fields with just the TODO_DB_PATH
+            i.putExtra(TodoNotificationService.TODOITEMSNAPSHOT, item);
+            i.putExtra(TodoNotificationService.TODO_DB_PATH, dbPath);
+
             createAlarm(i, hashCode, remindAt.getTime());
         } else if (remindAt == null && hasAlarmForItem) {
             deleteAlarm(i, hashCode);
