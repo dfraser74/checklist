@@ -160,7 +160,7 @@ public class ReminderActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.toDoReminderDoneMenuItem:
                 Date date = addTimeToDate(valueFromSpinner());
-                mItem.setRemindAt(date);
+                mItem.legacySetRemindAt(date);
                 Log.d("OskarSchindler", "Date Changed to: " + date);
                 changeOccurred();
                 saveData();

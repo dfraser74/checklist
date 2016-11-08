@@ -132,7 +132,7 @@ public class TestStoreRetrieveData extends ActivityUnitTestCase<MainActivity> {
                 // Check the items are same
                 if (retrievedItem.getIdentifier().equals(testItem.getIdentifier()) &&
                         retrievedItem.getTitle().equals(testItem.getTitle()) &&
-                        retrievedItem.getRemindAt().equals(testItem.getRemindAt())) {
+                        retrievedItem.legacyGetRemindAt().equals(testItem.legacyGetRemindAt())) {
 
                     found = true;
                     break;

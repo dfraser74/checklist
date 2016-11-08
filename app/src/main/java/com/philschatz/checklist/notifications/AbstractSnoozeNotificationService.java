@@ -15,9 +15,8 @@ public abstract class AbstractSnoozeNotificationService extends AbstractNotifica
     }
 
     protected Map<String, Object> updatedKeys(ToDoItem item) {
-        Date newTime = new Date(System.currentTimeMillis() + mMillisToSnooze);
+        String newTime = ToDoItem.fromLong(System.currentTimeMillis() + mMillisToSnooze);
         Map<String, Object> props = new HashMap<>();
-        // TODO: Convert this field to a string
         props.put("remindAt", newTime);
         return props;
     }

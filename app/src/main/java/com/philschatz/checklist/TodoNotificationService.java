@@ -85,7 +85,7 @@ public class TodoNotificationService extends IntentService {
                 .addAction(buildSnooze(Snooze2Minutes.class, "2 min", item, dbPath))
                 .addAction(buildSnooze(Snooze20Minutes.class, "20 min", item, dbPath))
                 .addAction(buildSnooze(Snooze1Day.class, "1 day", item, dbPath))
-                .setWhen(item.getRemindAt().getTime())
+                .setWhen(item.legacyGetRemindAt().getTime())
                 .build();
 
 

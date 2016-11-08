@@ -1,13 +1,11 @@
 package com.philschatz.checklist;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.support.design.widget.Snackbar;
-import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
 
@@ -58,7 +56,7 @@ class ToDoItemAdapter extends FirebaseRecyclerAdapter<ToDoItem, ToDoItemViewHold
         }
         holder.linearLayout.setBackgroundColor(bgColor);
 
-        if (item.getRemindAt() != null || item.getCompletedAt() != null) {
+        if (item.legacyGetRemindAt() != null || item.legacyGetCompletedAt() != null) {
             holder.mToDoTextview.setMaxLines(1);
             holder.mTimeTextView.setVisibility(View.VISIBLE);
         } else {
@@ -67,11 +65,11 @@ class ToDoItemAdapter extends FirebaseRecyclerAdapter<ToDoItem, ToDoItemViewHold
         }
         holder.mToDoTextview.setText(item.getTitle());
         holder.mToDoTextview.setTextColor(todoTextColor);
-        if (item.getCompletedAt() != null) {
+        if (item.legacyGetCompletedAt() != null) {
             holder.mToDoTextview.setTextColor(Color.LTGRAY);
             holder.mTimeTextView.setTextColor(Color.LTGRAY);
         }
-        if (item.getCompletedAt() != null) {
+        if (item.legacyGetCompletedAt() != null) {
             holder.mToDoTextview.setPaintFlags(holder.mToDoTextview.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
         }
 
@@ -98,11 +96,11 @@ class ToDoItemAdapter extends FirebaseRecyclerAdapter<ToDoItem, ToDoItemViewHold
                 .buildRound(firstLetter, color);
 
         holder.mColorImageView.setImageDrawable(myDrawable);
-        if (item.getCompletedAt() != null) {
-            Date time = item.getCompletedAt();
+        if (item.legacyGetCompletedAt() != null) {
+            Date time = item.legacyGetCompletedAt();
             holder.mTimeTextView.setReferenceTime(time.getTime());
-        } else if (item.getRemindAt() != null) {
-            Date time = item.getRemindAt();
+        } else if (item.legacyGetRemindAt() != null) {
+            Date time = item.legacyGetRemindAt();
             holder.mTimeTextView.setReferenceTime(time.getTime());
         }
 
@@ -123,9 +121,9 @@ class ToDoItemAdapter extends FirebaseRecyclerAdapter<ToDoItem, ToDoItemViewHold
         mJustCompletedToDoItemRef = getRef(position);
 
         // Toggle the "completedAt" field
-        Date completedAt = mJustCompletedToDoItem.getCompletedAt();
+        Date completedAt = mJustCompletedToDoItem.legacyGetCompletedAt();
         completedAt = (completedAt == null) ? new Date() : null;
-        mJustCompletedToDoItem.setCompletedAt(completedAt);
+        mJustCompletedToDoItem.legacySetCompletedAt(completedAt);
 
         // Save
         mJustCompletedToDoItemRef.setValue(mJustCompletedToDoItem);
@@ -143,18 +141,18 @@ class ToDoItemAdapter extends FirebaseRecyclerAdapter<ToDoItem, ToDoItemViewHold
 
                         //Comment the line below if not using Google Analytics
                         mainActivity.app.send(this, "Action", "UNDO Pressed");
-//                        if (mJustCompletedToDoItem.getRemindAt() != null) {
+//                        if (mJustCompletedToDoItem.legacyGetRemindAt() != null) {
 //                            Intent i = new Intent(mContext, TodoNotificationService.class);
 //                            i.putExtra(TodoNotificationService.TODOTEXT, mJustCompletedToDoItem.getTitle());
 //                            i.putExtra(TodoNotificationService.TODOUUID, mJustCompletedToDoItem.getIdentifier());
-//                            mContext.createAlarm(i, mJustCompletedToDoItem.getIdentifier().hashCode(), mJustCompletedToDoItem.getRemindAt().getTime());
+//                            mContext.createAlarm(i, mJustCompletedToDoItem.getIdentifier().hashCode(), mJustCompletedToDoItem.legacyGetRemindAt().getTime());
 //                        }
                         // TODO: PHIL Insertion order should be a float so we can always insert between 2 items
 
                         // Toggle completedAt
-                        Date completedAt = mJustCompletedToDoItem.getCompletedAt();
+                        Date completedAt = mJustCompletedToDoItem.legacyGetCompletedAt();
                         completedAt = (completedAt == null) ? new Date() : null;
-                        mJustCompletedToDoItem.setCompletedAt(completedAt);
+                        mJustCompletedToDoItem.legacySetCompletedAt(completedAt);
 
                         // Save changes
                         mJustCompletedToDoItemRef.setValue(mJustCompletedToDoItem);

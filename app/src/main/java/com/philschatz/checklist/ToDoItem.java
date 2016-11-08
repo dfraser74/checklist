@@ -2,6 +2,9 @@ package com.philschatz.checklist;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.threeten.bp.Instant;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.temporal.ChronoField;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -16,74 +19,30 @@ public class ToDoItem implements Serializable {
     remindAt (optional)
      */
 
-    private static final String TODOTEXT = "todotext";
-    private static final String TODODATE = "tododate";
-    private static final String TODOIDENTIFIER = "todoidentifier";
-    private String mTitle;
-    private Date mCreatedAt;
-    private Date mRemindAt;
-    private Date mCompletedAt;
     private String mIdentifier;
+    private String mTitle;
+    // These are public so Firebase serializes them easily
+    public String createdAt;
+    public String remindAt;
+    public String completedAt;
 
+
+    public static String getNow() {
+        return DateTimeFormatter.ISO_INSTANT.format(Instant.now());
+    }
 
     public ToDoItem() {
         mIdentifier = UUID.randomUUID().toString();
-        mCreatedAt = new Date();
+        createdAt = getNow();
     }
 
     public ToDoItem(JSONObject jsonObject) throws JSONException {
-        mTitle = jsonObject.getString(TODOTEXT);
-        mIdentifier = jsonObject.getString(TODOIDENTIFIER);
-
-        if (jsonObject.has(TODODATE)) {
-            mRemindAt = new Date(jsonObject.getLong(TODODATE));
-        }
+        throw new RuntimeException("BUG: This constructor is no longer supported");
     }
 
     public JSONObject toJSON() throws JSONException {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put(TODOTEXT, mTitle);
-        if (mRemindAt != null) {
-            jsonObject.put(TODODATE, mRemindAt.getTime());
-        }
-        jsonObject.put(TODOIDENTIFIER, mIdentifier);
-
-        return jsonObject;
+        throw new RuntimeException("BUG: This serializer is no longer supported");
     }
-
-
-    public String getTitle() {
-        return mTitle;
-    }
-
-    public void setTitle(String title) {
-        this.mTitle = title;
-    }
-
-    public Date getRemindAt() {
-        return mRemindAt;
-    }
-
-    public void setRemindAt(Date at) {
-        this.mRemindAt = at;
-    }
-
-    public Date getCompletedAt() {
-        return mCompletedAt;
-    }
-
-    public void setCompletedAt(Date at) {
-        this.mCompletedAt = at;
-    }
-
-    public Date getCreatedAt() {
-        return mCreatedAt;
-    }
-
-    public void setCreatedAt(Date at) {
-        this.mCreatedAt = at;
-    }
-
 
     public String getIdentifier() {
         return mIdentifier;
@@ -93,5 +52,78 @@ public class ToDoItem implements Serializable {
         mIdentifier = identifier;
     }
 
+    public String getTitle() {
+        return mTitle;
+    }
+
+    public void setTitle(String title) {
+        this.mTitle = title;
+    }
+
+    public long createdAt() {
+        return fromString(createdAt);
+    }
+    public long completedAt() {
+        return fromString(completedAt);
+    }
+    public long remindAt() {
+        return fromString(remindAt);
+    }
+
+    public void createdAtSet(long at) {
+        createdAt = fromLong(at);
+    }
+    public void completedAtSet(long at) {
+        completedAt = fromLong(at);
+    }
+    public void remindAtSet(long at) {
+        remindAt = fromLong(at);
+    }
+
+    public boolean hasReminder() { return remindAt != null; }
+    public boolean isComplete() { return completedAt != null; }
+
+    public Date legacyGetCompletedAt() {
+        return fromStringToDate(completedAt);
+    }
+    public Date legacyGetRemindAt() {
+        return fromStringToDate(remindAt);
+    }
+    public void legacySetCreatedAt(Date at) {
+        createdAt = fromDateToString(at);
+    }
+    public void legacySetCompletedAt(Date at) {
+        completedAt = fromDateToString(at);
+    }
+    public void legacySetRemindAt(Date at) {
+        remindAt = fromDateToString(at);
+    }
+
+    private Date fromStringToDate(String at) {
+        if (at == null) {
+            return null;
+        }
+        return new Date(fromString(at));
+    }
+
+    private String fromDateToString(Date at) {
+        if (at == null) {
+            return null;
+        } else {
+            return fromLong(at.getTime());
+        }
+    }
+
+
+    private static long fromString(String at) {
+        if (at != null) {
+            return DateTimeFormatter.ISO_INSTANT.parse(at).getLong(ChronoField.INSTANT_SECONDS) * 1000;
+        }
+        // TODO: Turn this into a RuntimeException? Maybe to check that code checks `has###()` first.
+        return 0L;
+    }
+    public static String fromLong(long at) {
+        return DateTimeFormatter.ISO_INSTANT.format(Instant.ofEpochMilli(at));
+    }
 }
 

@@ -15,7 +15,7 @@ public class CompleteNotificationService extends AbstractNotificationService {
     protected Map<String, Object> updatedKeys(ToDoItem item) {
         Map<String, Object> props = new HashMap<>();
         // TODO: Convert this field to a string
-        props.put("completedAt", new Date());
+        props.put("completedAt", ToDoItem.getNow());
 
         // Leave the following line commented so 1. we can remember when the reminder was originally set and 2. if the user presses undo
         // props.put("remindAt", null);

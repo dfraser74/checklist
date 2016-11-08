@@ -22,6 +22,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.jakewharton.threetenabp.AndroidThreeTen;
 
 /*
 Notes for what needs to be worked on:
@@ -120,15 +121,15 @@ public class MainActivity extends AppCompatActivity {
         // TODO: This should be set in the RecyclerAdapter whenever an item is added or changed
 //        if (mToDoItemsArrayList != null) {
 //            for (ToDoItem item : mToDoItemsArrayList) {
-//                if (item.getRemindAt() != null) {
-//                    if (item.getRemindAt().before(new Date())) {
-//                        item.setRemindAt(null);
+//                if (item.legacyGetRemindAt() != null) {
+//                    if (item.legacyGetRemindAt().before(new Date())) {
+//                        item.legacySetRemindAt(null);
 //                        continue;
 //                    }
 //                    Intent i = new Intent(this, TodoNotificationService.class);
 //                    i.putExtra(TodoNotificationService.TODOUUID, item.getIdentifier());
 //                    i.putExtra(TodoNotificationService.TODOTEXT, item.getTitle());
-//                    createAlarm(i, item.getIdentifier().hashCode(), item.getRemindAt().getTime());
+//                    createAlarm(i, item.getIdentifier().hashCode(), item.legacyGetRemindAt().getTime());
 //                }
 //            }
 //        }
@@ -136,6 +137,9 @@ public class MainActivity extends AppCompatActivity {
 
     protected void onCreate(Bundle savedInstanceState) {
         app = (AnalyticsApplication) getApplication();
+
+        // Init timezones
+        AndroidThreeTen.init(this);
 
         //We recover the theme we've set and setTheme accordingly
         theme = getSharedPreferences(THEME_PREFERENCES, MODE_PRIVATE).getString(THEME_SAVED, LIGHTTHEME);
@@ -276,12 +280,12 @@ public class MainActivity extends AppCompatActivity {
             }
             boolean existed = false;
 
-//            if (item.getRemindAt() != null) {
+//            if (item.legacyGetRemindAt() != null) {
 //                Intent i = new Intent(this, TodoNotificationService.class);
 //                i.putExtra(TodoNotificationService.TODOTEXT, item.getTitle());
 //                i.putExtra(TodoNotificationService.TODOUUID, item.getIdentifier());
-//                createAlarm(i, item.getIdentifier().hashCode(), item.getRemindAt().getTime());
-//                Log.d(TAG, "Alarm Created: "+item.getTitle()+" at "+item.getRemindAt());
+//                createAlarm(i, item.getIdentifier().hashCode(), item.legacyGetRemindAt().getTime());
+//                Log.d(TAG, "Alarm Created: "+item.getTitle()+" at "+item.legacyGetRemindAt());
 //            }
 
             // append a new item or edit an existing item

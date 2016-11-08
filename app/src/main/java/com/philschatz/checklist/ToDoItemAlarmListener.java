@@ -27,6 +27,28 @@ class ToDoItemAlarmListener implements ChildEventListener {
 
     @Override
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+//        // These are here only for migration reasons
+//        ToDoItem item = dataSnapshot.getValue(ToDoItem.class);
+//        boolean changed = false;
+//        if (item.createdAt != null) {
+//            item.legacySetCreatedAt(item.createdAt);
+//            item.createdAt = null;
+//            changed = true;
+//        }
+//        if (item.completedAt != null) {
+//            item.legacySetCompletedAt(item.completedAt);
+//            item.completedAt = null;
+//            changed = true;
+//        }
+//        if (item.remindAt != null) {
+//            item.legacySetRemindAt(item.remindAt);
+//            item.remindAt = null;
+//            changed = true;
+//        }
+//        if (changed) {
+//            dataSnapshot.getRef().setValue(item);
+//        }
+//
         setAlarmIfNecessary(dataSnapshot.getValue(ToDoItem.class), dataSnapshot.getRef());
     }
 
@@ -59,10 +81,10 @@ class ToDoItemAlarmListener implements ChildEventListener {
         Intent i = new Intent(mContext, TodoNotificationService.class);
         int hashCode = item.getIdentifier().hashCode();
         boolean hasAlarmForItem = hasAlarm(i, hashCode);
-        Date remindAt = item.getRemindAt();
+        Date remindAt = item.legacyGetRemindAt();
 
         // Only care about reminders when item is not complete
-        if (item.getCompletedAt() != null) {
+        if (item.legacyGetCompletedAt() != null) {
             remindAt = null;
         }
 
@@ -72,7 +94,7 @@ class ToDoItemAlarmListener implements ChildEventListener {
         // Set all the fields for the intent (used by createAlarm and updateAlarm)
         i.putExtra(TodoNotificationService.TODOUUID, item.getIdentifier());
         i.putExtra(TodoNotificationService.TODOTEXT, item.getTitle());
-        i.putExtra(TodoNotificationService.TODOREMINDAT, item.getRemindAt());
+        i.putExtra(TodoNotificationService.TODOREMINDAT, item.legacyGetRemindAt());
         // TODO: Replace the previous fields with just the TODO_DB_PATH
         i.putExtra(TodoNotificationService.TODOITEMSNAPSHOT, item);
         i.putExtra(TodoNotificationService.TODO_DB_PATH, dbPath);
