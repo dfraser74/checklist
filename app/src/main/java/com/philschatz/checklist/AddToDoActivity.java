@@ -120,8 +120,10 @@ public class AddToDoActivity extends AppCompatActivity implements DatePickerDial
         mUserToDoItemId = getIntent().getStringExtra(MainActivity.TODOITEM_ID);
 
         mUserEnteredText = mUserToDoItem.getTitle();
-        mUserReminderDate = mUserToDoItem.legacyGetRemindAt();
-        mUserHasReminder = mUserReminderDate != null;
+        mUserHasReminder = mUserToDoItem.hasReminder();
+        if (mUserHasReminder) {
+            mUserReminderDate = new Date(mUserToDoItem.remindAt());
+        }
 //        mUserColor = mUserToDoItem.getTodoColor();
 
 
@@ -249,7 +251,7 @@ public class AddToDoActivity extends AppCompatActivity implements DatePickerDial
 
                 Date date;
                 hideKeyboard(mToDoTextBodyEditText);
-                if (mUserToDoItem.legacyGetRemindAt() != null) {
+                if (mUserToDoItem.hasReminder()) {
 //                    date = mUserToDoItem.legacyGetRemindAt();
                     date = mUserReminderDate;
                 } else {
@@ -278,8 +280,7 @@ public class AddToDoActivity extends AppCompatActivity implements DatePickerDial
 
                 Date date;
                 hideKeyboard(mToDoTextBodyEditText);
-                if (mUserToDoItem.legacyGetRemindAt() != null) {
-//                    date = mUserToDoItem.legacyGetRemindAt();
+                if (mUserToDoItem.hasReminder()) {
                     date = mUserReminderDate;
                 } else {
                     date = new Date();
@@ -360,7 +361,7 @@ public class AddToDoActivity extends AppCompatActivity implements DatePickerDial
 
     private void setDateAndTimeEditText() {
 
-        if (mUserToDoItem.legacyGetRemindAt() != null && mUserReminderDate != null) {
+        if (mUserToDoItem.hasReminder() && mUserReminderDate != null) {
             String userDate = formatDate("d MMM, yyyy", mUserReminderDate);
             String formatToUse;
             if (DateFormat.is24HourFormat(this)) {
@@ -544,9 +545,9 @@ public class AddToDoActivity extends AppCompatActivity implements DatePickerDial
             mUserReminderDate = calendar.getTime();
         }
         if (mUserHasReminder) {
-            mUserToDoItem.legacySetRemindAt(mUserReminderDate);
+            mUserToDoItem.remindAtSet(mUserReminderDate.getTime());
         } else {
-            mUserToDoItem.legacySetRemindAt(null);
+            mUserToDoItem.clearReminder();
         }
 
 //        mUserToDoItem.setTodoColor(mUserColor);
@@ -558,7 +559,7 @@ public class AddToDoActivity extends AppCompatActivity implements DatePickerDial
     @Override
     public void onBackPressed() {
         if (mUserReminderDate.before(new Date())) {
-            mUserToDoItem.legacySetRemindAt(null);
+            mUserToDoItem.clearReminder();
         }
         makeResult(RESULT_OK);
         super.onBackPressed();

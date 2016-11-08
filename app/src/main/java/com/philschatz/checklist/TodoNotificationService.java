@@ -69,7 +69,9 @@ public class TodoNotificationService extends IntentService {
         completeIntent.putExtra(TodoNotificationService.TODO_DB_PATH, dbPath);
 
 
-
+        if (!item.hasReminder()) {
+            throw new RuntimeException("BUG: just making sure the item has a reminder");
+        }
 
         Notification notification = new Notification.Builder(this)
                 .setAutoCancel(true) // hide the notification when an action is performed?
@@ -85,7 +87,7 @@ public class TodoNotificationService extends IntentService {
                 .addAction(buildSnooze(Snooze2Minutes.class, "2 min", item, dbPath))
                 .addAction(buildSnooze(Snooze20Minutes.class, "20 min", item, dbPath))
                 .addAction(buildSnooze(Snooze1Day.class, "1 day", item, dbPath))
-                .setWhen(item.legacyGetRemindAt().getTime())
+                .setWhen(item.remindAt())
                 .build();
 
 

@@ -44,6 +44,16 @@ public class ToDoItem implements Serializable {
         throw new RuntimeException("BUG: This serializer is no longer supported");
     }
 
+    public void toggleCompletedAt() {
+        completedAt = (completedAt == null) ? getNow() : null;
+    }
+
+    public boolean hasReminder() { return remindAt != null; }
+    public boolean isComplete() { return completedAt != null; }
+    public void clearReminder() { remindAt = null; }
+
+    // Accessor methods are down here
+
     public String getIdentifier() {
         return mIdentifier;
     }
@@ -80,39 +90,38 @@ public class ToDoItem implements Serializable {
         remindAt = fromLong(at);
     }
 
-    public boolean hasReminder() { return remindAt != null; }
-    public boolean isComplete() { return completedAt != null; }
 
-    public Date legacyGetCompletedAt() {
-        return fromStringToDate(completedAt);
-    }
-    public Date legacyGetRemindAt() {
-        return fromStringToDate(remindAt);
-    }
-    public void legacySetCreatedAt(Date at) {
-        createdAt = fromDateToString(at);
-    }
-    public void legacySetCompletedAt(Date at) {
-        completedAt = fromDateToString(at);
-    }
-    public void legacySetRemindAt(Date at) {
-        remindAt = fromDateToString(at);
-    }
-
-    private Date fromStringToDate(String at) {
-        if (at == null) {
-            return null;
-        }
-        return new Date(fromString(at));
-    }
-
-    private String fromDateToString(Date at) {
-        if (at == null) {
-            return null;
-        } else {
-            return fromLong(at.getTime());
-        }
-    }
+//    public Date legacyGetCompletedAt() {
+//        return fromStringToDate(completedAt);
+//    }
+//    public Date legacyGetRemindAt() {
+//        return fromStringToDate(remindAt);
+//    }
+//    public void legacySetCreatedAt(Date at) {
+//        createdAt = fromDateToString(at);
+//    }
+//    public void legacySetCompletedAt(Date at) {
+//        completedAt = fromDateToString(at);
+//    }
+//    public void legacySetRemindAt(Date at) {
+//        remindAt = fromDateToString(at);
+//    }
+//
+//
+//    private Date fromStringToDate(String at) {
+//        if (at == null) {
+//            return null;
+//        }
+//        return new Date(fromString(at));
+//    }
+//
+//    private String fromDateToString(Date at) {
+//        if (at == null) {
+//            return null;
+//        } else {
+//            return fromLong(at.getTime());
+//        }
+//    }
 
 
     private static long fromString(String at) {
@@ -123,7 +132,11 @@ public class ToDoItem implements Serializable {
         return 0L;
     }
     public static String fromLong(long at) {
-        return DateTimeFormatter.ISO_INSTANT.format(Instant.ofEpochMilli(at));
+        if (at == 0) {
+            return null;
+        } else {
+            return DateTimeFormatter.ISO_INSTANT.format(Instant.ofEpochMilli(at));
+        }
     }
 }
 

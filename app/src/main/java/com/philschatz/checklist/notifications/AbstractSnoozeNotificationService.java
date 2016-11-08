@@ -15,6 +15,7 @@ public abstract class AbstractSnoozeNotificationService extends AbstractNotifica
     }
 
     protected Map<String, Object> updatedKeys(ToDoItem item) {
+        // TODO: Maybe provide an increment utility on ToDoItem since this should probably use Instant.now()
         String newTime = ToDoItem.fromLong(System.currentTimeMillis() + mMillisToSnooze);
         Map<String, Object> props = new HashMap<>();
         props.put("remindAt", newTime);

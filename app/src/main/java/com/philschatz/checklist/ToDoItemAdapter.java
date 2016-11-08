@@ -56,7 +56,7 @@ class ToDoItemAdapter extends FirebaseRecyclerAdapter<ToDoItem, ToDoItemViewHold
         }
         holder.linearLayout.setBackgroundColor(bgColor);
 
-        if (item.legacyGetRemindAt() != null || item.legacyGetCompletedAt() != null) {
+        if (item.hasReminder() || item.isComplete()) {
             holder.mToDoTextview.setMaxLines(1);
             holder.mTimeTextView.setVisibility(View.VISIBLE);
         } else {
@@ -65,11 +65,11 @@ class ToDoItemAdapter extends FirebaseRecyclerAdapter<ToDoItem, ToDoItemViewHold
         }
         holder.mToDoTextview.setText(item.getTitle());
         holder.mToDoTextview.setTextColor(todoTextColor);
-        if (item.legacyGetCompletedAt() != null) {
+        if (item.isComplete()) {
             holder.mToDoTextview.setTextColor(Color.LTGRAY);
             holder.mTimeTextView.setTextColor(Color.LTGRAY);
         }
-        if (item.legacyGetCompletedAt() != null) {
+        if (item.isComplete()) {
             holder.mToDoTextview.setPaintFlags(holder.mToDoTextview.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
         }
 
@@ -96,12 +96,12 @@ class ToDoItemAdapter extends FirebaseRecyclerAdapter<ToDoItem, ToDoItemViewHold
                 .buildRound(firstLetter, color);
 
         holder.mColorImageView.setImageDrawable(myDrawable);
-        if (item.legacyGetCompletedAt() != null) {
-            Date time = item.legacyGetCompletedAt();
-            holder.mTimeTextView.setReferenceTime(time.getTime());
-        } else if (item.legacyGetRemindAt() != null) {
-            Date time = item.legacyGetRemindAt();
-            holder.mTimeTextView.setReferenceTime(time.getTime());
+        if (item.isComplete()) {
+            long time = item.completedAt();
+            holder.mTimeTextView.setReferenceTime(time);
+        } else if (item.hasReminder()) {
+            long time = item.remindAt();
+            holder.mTimeTextView.setReferenceTime(time);
         }
 
     }
@@ -121,9 +121,7 @@ class ToDoItemAdapter extends FirebaseRecyclerAdapter<ToDoItem, ToDoItemViewHold
         mJustCompletedToDoItemRef = getRef(position);
 
         // Toggle the "completedAt" field
-        Date completedAt = mJustCompletedToDoItem.legacyGetCompletedAt();
-        completedAt = (completedAt == null) ? new Date() : null;
-        mJustCompletedToDoItem.legacySetCompletedAt(completedAt);
+        mJustCompletedToDoItem.toggleCompletedAt();
 
         // Save
         mJustCompletedToDoItemRef.setValue(mJustCompletedToDoItem);
@@ -150,9 +148,7 @@ class ToDoItemAdapter extends FirebaseRecyclerAdapter<ToDoItem, ToDoItemViewHold
                         // TODO: PHIL Insertion order should be a float so we can always insert between 2 items
 
                         // Toggle completedAt
-                        Date completedAt = mJustCompletedToDoItem.legacyGetCompletedAt();
-                        completedAt = (completedAt == null) ? new Date() : null;
-                        mJustCompletedToDoItem.legacySetCompletedAt(completedAt);
+                        mJustCompletedToDoItem.toggleCompletedAt();
 
                         // Save changes
                         mJustCompletedToDoItemRef.setValue(mJustCompletedToDoItem);
