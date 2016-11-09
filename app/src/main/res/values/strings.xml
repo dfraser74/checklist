@@ -19,6 +19,7 @@
     <string name="night_mode_off_summary">Night mode is off</string>
 
     <string-array name="snooze_options">
+        <item>1 Minute</item>
         <item>10 Minutes</item>
         <item>30 Minutes</item>
         <item>1 Hour</item>

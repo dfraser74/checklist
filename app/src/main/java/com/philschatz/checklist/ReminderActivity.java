@@ -14,9 +14,9 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
-import org.json.JSONException;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -34,6 +34,7 @@ public class ReminderActivity extends AppCompatActivity {
     private StoreRetrieveData storeRetrieveData;
     private ArrayList<ToDoItem> mToDoItems;
     private ToDoItem mItem;
+    private DatabaseReference mDbRef;
     private TextView mSnoozeTextView;
 
     @Override
@@ -57,6 +58,8 @@ public class ReminderActivity extends AppCompatActivity {
 
         Intent i = getIntent();
         mItem = (ToDoItem) i.getSerializableExtra(TodoNotificationService.TODOITEMSNAPSHOT);
+        String dbPath = i.getStringExtra(TodoNotificationService.TODO_DB_PATH);
+        mDbRef = MainActivity.getFirebaseDatabase().getReference(dbPath);
 
         snoozeOptionsArray = getResources().getStringArray(R.array.snooze_options);
 
@@ -81,9 +84,9 @@ public class ReminderActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 app.send(this, "Action", "Todo Removed from Reminder Activity");
-                mToDoItems.remove(mItem);
+                mItem.isArchivedSet(true);
+                saveData(mItem);
                 changeOccurred();
-                saveData();
                 closeApp();
 //                finish();
             }
@@ -138,10 +141,12 @@ public class ReminderActivity extends AppCompatActivity {
     private int valueFromSpinner() {
         switch (mSnoozeSpinner.getSelectedItemPosition()) {
             case 0:
-                return 10;
+                return 1;
             case 1:
-                return 30;
+                return 10;
             case 2:
+                return 30;
+            case 3:
                 return 60;
             default:
                 return 0;
@@ -156,8 +161,9 @@ public class ReminderActivity extends AppCompatActivity {
                 mItem.remindAtSet(date.getTime());
                 Log.d("OskarSchindler", "Date Changed to: " + date);
                 changeOccurred();
-                saveData();
-                closeApp();
+                saveData(mItem);
+//                closeApp();
+                finish();
                 //foo
                 return true;
             default:
@@ -176,12 +182,8 @@ public class ReminderActivity extends AppCompatActivity {
 //        }
 //    }
 
-    private void saveData() {
-        try {
-            storeRetrieveData.saveToFile(mToDoItems);
-        } catch (JSONException | IOException e) {
-            e.printStackTrace();
-        }
+    private void saveData(ToDoItem item) {
+        mDbRef.setValue(item);
     }
 
     @Override

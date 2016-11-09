@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.philschatz.checklist.MainActivity;
 import com.philschatz.checklist.ToDoItem;
 import com.philschatz.checklist.TodoNotificationService;
 
@@ -34,7 +35,7 @@ public abstract class AbstractNotificationService extends IntentService {
         String dbPath = intent.getStringExtra(TodoNotificationService.TODO_DB_PATH);
         ToDoItem item = (ToDoItem) intent.getSerializableExtra(TodoNotificationService.TODOITEMSNAPSHOT);
         int hashCode = intent.getIntExtra(TodoNotificationService.NOTIFICATION_ID, dbPath.hashCode());
-        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference(dbPath);
+        DatabaseReference dbRef = MainActivity.getFirebaseDatabase().getReference(dbPath);
 
         Map<String, Object> props = updatedKeys(item);
 

@@ -71,13 +71,24 @@ public class MainActivity extends AppCompatActivity {
     private GoogleApiClient client;
 
 
+    private static FirebaseDatabase __db;
+
+    public static FirebaseDatabase getFirebaseDatabase() {
+        // ensure setPersistenceEnabled is called only once in the app
+        if (__db == null) {
+            __db = FirebaseDatabase.getInstance();
+            __db.setPersistenceEnabled(true); // Support offline storage
+        }
+        return __db;
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
         app.send(this);
 
         SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREF_DATA_SET_CHANGED, MODE_PRIVATE);
-        if (sharedPreferences.getBoolean(ReminderActivity.EXIT, false)) {
+        if (sharedPreferences.getBoolean(ReminderActivity.EXIT, true)) {
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putBoolean(ReminderActivity.EXIT, false);
             editor.apply();
@@ -160,8 +171,7 @@ public class MainActivity extends AppCompatActivity {
         editor.putBoolean(CHANGE_OCCURED, false);
         editor.apply();
 
-        final FirebaseDatabase dbInstance = FirebaseDatabase.getInstance();
-        dbInstance.setPersistenceEnabled(true); // Support offline storage
+        final FirebaseDatabase dbInstance = getFirebaseDatabase();
         final DatabaseReference root = dbInstance.getReference();
         databaseReference = root.child("lists").child("sandbox").child("items");
 

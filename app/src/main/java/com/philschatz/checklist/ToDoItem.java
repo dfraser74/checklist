@@ -25,6 +25,7 @@ public class ToDoItem implements Serializable {
     public String createdAt;
     public String remindAt;
     public String completedAt;
+    public boolean isArchived;
 
 
     public static String getNow() {
@@ -90,8 +91,11 @@ public class ToDoItem implements Serializable {
         remindAt = fromLong(at);
     }
 
+    public void isArchivedSet(boolean archived) {
+        isArchived = archived;
+    }
 
-//    public Date legacyGetCompletedAt() {
+    //    public Date legacyGetCompletedAt() {
 //        return fromStringToDate(completedAt);
 //    }
 //    public Date legacyGetRemindAt() {
