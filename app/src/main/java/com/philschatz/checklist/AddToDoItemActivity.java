@@ -561,7 +561,7 @@ public class AddToDoItemActivity extends AppCompatActivity implements DatePicker
         if (mUserReminderDate.before(new Date())) {
             mUserToDoItem.clearReminder();
         }
-        makeResult(RESULT_OK);
+        makeResult(RESULT_CANCELED);
         super.onBackPressed();
     }
 

@@ -48,7 +48,7 @@ public class ToDoListActivity extends AppCompatActivity {
     public static final int REQUEST_ID_TODO_ITEM = 100;
     private static final String TAG = "ToDoItemListActivity";
     public static final String TODOLIST = "com.philschatz.checklist.todolist";
-    private static final int EDIT_LIST = 101;
+    private static final int REQUEST_ID_EDIT_LIST = 101;
 
     private Toolbar mToolbar;
     private String mListPath;
@@ -121,7 +121,7 @@ public class ToDoListActivity extends AppCompatActivity {
                 item.setTitle(""); // This way the editor will start up blank
                 newTodo.putExtra(TODOITEM, item);
                 // new items do not have a Firebase id yet  TODO PHIL Maybe this should be the point when they get an id
-                newTodo.putExtra(TODOITEM_ID, (String) null);
+                newTodo.putExtra(TODOITEM_ID, databaseReference.push().getKey());
 
                 startActivityForResult(newTodo, REQUEST_ID_TODO_ITEM);
             }
@@ -199,7 +199,7 @@ public class ToDoListActivity extends AppCompatActivity {
                 String listId = MainActivity.getReference(mListPath).getKey();
                 intent.putExtra(TODOITEM_ID, listId);
                 intent.putExtra(ToDoListActivity.TODOLIST, mList);
-                startActivityForResult(intent, EDIT_LIST);
+                startActivityForResult(intent, REQUEST_ID_EDIT_LIST);
                 return true;
 
             default:
@@ -209,7 +209,13 @@ public class ToDoListActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode != RESULT_CANCELED && requestCode == EDIT_LIST) {
+        if (resultCode != RESULT_CANCELED && requestCode == REQUEST_ID_TODO_ITEM) {
+            ToDoItem item = (ToDoItem) data.getSerializableExtra(TODOITEM);
+            String id = data.getStringExtra(TODOITEM_ID);
+            String listId = MainActivity.getReference(mListPath).getKey();
+            MainActivity.getReference("/items/" + listId + "/" + id).setValue(item);
+        }
+        if (resultCode != RESULT_CANCELED && requestCode == REQUEST_ID_EDIT_LIST) {
             mList = (ToDoList) data.getSerializableExtra(TODOLIST);
             // update the toolbar
             mToolbar.setTitle(mList.getTitle());
