@@ -57,6 +57,8 @@ public class TodoNotificationService extends IntentService {
         }
         final int hashCode = dbPath.hashCode();
 
+        String listId = MainActivity.getReference(dbPath).getParent().getKey();
+
         Log.d("OskarSchindler", "onHandleIntent called");
         NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
@@ -78,6 +80,7 @@ public class TodoNotificationService extends IntentService {
                 .setAutoCancel(false) // hide the notification when an action is performed?
                 .setCategory(Notification.CATEGORY_REMINDER)
                 .setPriority(Notification.PRIORITY_HIGH) // Useful for the heads up notification so people are reminded
+//                .setColor(list.getColor())
                 .setSmallIcon(R.drawable.ic_done_white_24dp)
                 .setContentTitle(item.getTitle())
                 .setContentText("(list name here)")

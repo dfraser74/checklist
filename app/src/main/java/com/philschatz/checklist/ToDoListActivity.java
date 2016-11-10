@@ -19,13 +19,8 @@ import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
-import com.jakewharton.threetenabp.AndroidThreeTen;
 
 /*
 Notes for what needs to be worked on:
@@ -39,7 +34,7 @@ Notes for what needs to be worked on:
 - [ ] add snooze button for homescreen reminder
  */
 
-public class MainActivity extends AppCompatActivity {
+public class ToDoListActivity extends AppCompatActivity {
     public static final String TODOITEM = "com.philschatz.checklist.MainActivity.theToDoItem";
     public static final String TODOITEM_ID = "com.philschatz.checklist.MainActivity.theToDoItemId";
     public static final String FILENAME = "todoitems.json";
@@ -52,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String LIGHTTHEME = "com.philschatz.checklist.lighttheme";
     public static final int REQUEST_ID_TODO_ITEM = 100;
     private static final String TAG = "ToDoItemListActivity";
-    private static final int REQUEST_ID_TODO_LIST = 200;
+    public static final String TODOLIST = "com.philschatz.checklist.todolist";
 
     public ItemTouchHelper itemTouchHelper;
     private RecyclerViewEmptySupport mRecyclerView;
@@ -74,106 +69,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private GoogleApiClient client;
 
-
-    private static FirebaseDatabase __db;
-
-    public static FirebaseDatabase getFirebaseDatabase() {
-        // ensure setPersistenceEnabled is called only once in the app
-        if (__db == null) {
-            __db = FirebaseDatabase.getInstance();
-            __db.setPersistenceEnabled(true); // Support offline storage
-        }
-        return __db;
-    }
-    public static DatabaseReference getReference(String path) {
-        return getFirebaseDatabase().getReference(path);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        app.send(this);
-
-        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREF_DATA_SET_CHANGED, MODE_PRIVATE);
-        if (sharedPreferences.getBoolean(ReminderActivity.EXIT, true)) {
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putBoolean(ReminderActivity.EXIT, false);
-            editor.apply();
-            finish();
-        }
-        /*
-        We need to do this, as this activity's onCreate won't be called when coming back from SettingsActivity,
-        thus our changes to dark/light mode won't take place, as the setContentView() is not called again.
-        So, inside our SettingsFragment, whenever the checkbox's value is changed, in our shared preferences,
-        we mark our recreate_activity key as true.
-
-        Note: the recreate_key's value is changed to false before calling recreate(), or we woudl have ended up in an infinite loop,
-        as onResume() will be called on recreation, which will again call recreate() and so on....
-        and get an ANR
-
-         */
-        if (getSharedPreferences(THEME_PREFERENCES, MODE_PRIVATE).getBoolean(RECREATE_ACTIVITY, false)) {
-            SharedPreferences.Editor editor = getSharedPreferences(THEME_PREFERENCES, MODE_PRIVATE).edit();
-            editor.putBoolean(RECREATE_ACTIVITY, false);
-            editor.apply();
-            recreate();
-        }
-
-
-    }
-
-    @Override
-    protected void onStart() {
-        app = (AnalyticsApplication) getApplication();
-        super.onStart();// ATTENTION: This was auto-generated to implement the App Indexing API.
-// See https://g.co/AppIndexing/AndroidStudio for more information.
-        client.connect();
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        AppIndex.AppIndexApi.start(client, getIndexApiAction());
-    }
-
-    private void setAlarms(Query databaseRef) {
-        databaseRef.addChildEventListener(new ChildEventListener() {
-
-//            HashMap<String, ToDoItemAlarmListener> listeners = new HashMap<>();
-
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-//                String listId = dataSnapshot.getKey();
-                ToDoItemAlarmListener l = new ToDoItemAlarmListener(MainActivity.this);
-                dataSnapshot.getRef().addChildEventListener(l);
-//                listeners.put(listId, l);
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                // Nothing to do here
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-//                String listId = dataSnapshot.getKey();
-//                listeners.remove(listId);
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
-
     protected void onCreate(Bundle savedInstanceState) {
-        app = (AnalyticsApplication) getApplication();
-
-        // Init timezones
-        AndroidThreeTen.init(this);
 
         //We recover the theme we've set and setTheme accordingly
         theme = getSharedPreferences(THEME_PREFERENCES, MODE_PRIVATE).getString(THEME_SAVED, LIGHTTHEME);
@@ -194,13 +90,16 @@ public class MainActivity extends AppCompatActivity {
         editor.putBoolean(CHANGE_OCCURED, false);
         editor.apply();
 
-        databaseReference = getReference("lists");
+        Intent i = getIntent();
+        String dbPath = i.getStringExtra(TodoNotificationService.TODO_DB_PATH);
+        ToDoList list = (ToDoList) i.getSerializableExtra(ToDoListActivity.TODOLIST);
 
-
-        setAlarms(getReference("items"));
+        databaseReference = MainActivity.getReference(dbPath);
 
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle("My Lists");
+
+        toolbar.setTitle(list.getTitle());
+        toolbar.setBackgroundColor(list.getColor());
         setSupportActionBar(toolbar);
 
 
@@ -212,16 +111,15 @@ public class MainActivity extends AppCompatActivity {
             @SuppressWarnings("deprecation")
             @Override
             public void onClick(View v) {
-                app.send(this, "Action", "FAB pressed");
-                Intent newTodo = new Intent(MainActivity.this, AddToDoListActivity.class);
-
-                ToDoList item = new ToDoList();
+//                app.send(this, "Action", "FAB pressed");
+                Intent newTodo = new Intent(ToDoListActivity.this, AddToDoItemActivity.class);
+                ToDoItem item = new ToDoItem();
                 item.setTitle(""); // This way the editor will start up blank
-                newTodo.putExtra(ToDoListActivity.TODOLIST, item);
+                newTodo.putExtra(TODOITEM, item);
                 // new items do not have a Firebase id yet  TODO PHIL Maybe this should be the point when they get an id
                 newTodo.putExtra(TODOITEM_ID, (String) null);
 
-                startActivityForResult(newTodo, REQUEST_ID_TODO_LIST);
+                startActivityForResult(newTodo, REQUEST_ID_TODO_ITEM);
             }
         });
 
@@ -241,9 +139,9 @@ public class MainActivity extends AppCompatActivity {
 
 
         // TODO: Checkout android.R.layout.two_line_list_item instead
-        Query sortedItems = databaseReference.orderByChild("title");
-//        ToDoItemAdapter mAdapter = new ToDoItemAdapter(this, this, sortedItems);
-        ToDoListAdapter mAdapter = new ToDoListAdapter(this, this, sortedItems);
+        // TODO: Try to sort & filter the list : https://stackoverflow.com/questions/30398247/how-to-filter-a-recyclerview-with-a-searchview#30429439
+        Query sortedItems = databaseReference.orderByChild("completedAt");
+        ToDoItemAdapter mAdapter = new ToDoItemAdapter(this, list, sortedItems);
 
         mRecyclerView.setAdapter(mAdapter);
 
@@ -329,33 +227,7 @@ public class MainActivity extends AppCompatActivity {
                 databaseReference.push().setValue(item);
             }
 
-        } else if (resultCode != RESULT_CANCELED && requestCode == REQUEST_ID_TODO_LIST) {
-            ToDoList item = (ToDoList) data.getSerializableExtra(ToDoListActivity.TODOLIST);
-            String itemId = data.getStringExtra(TODOITEM_ID);
-
-            if (item.getTitle().length() <= 0) {
-                return;
-            }
-            boolean existed = false;
-
-//            if (item.legacyGetRemindAt() != null) {
-//                Intent i = new Intent(this, TodoNotificationService.class);
-//                i.putExtra(TodoNotificationService.TODOTEXT, item.getTitle());
-//                i.putExtra(TodoNotificationService.TODOUUID, item.getIdentifier());
-//                createAlarm(i, item.getIdentifier().hashCode(), item.legacyGetRemindAt().getTime());
-//                Log.d(TAG, "Alarm Created: "+item.getTitle()+" at "+item.legacyGetRemindAt());
-//            }
-
-            // append a new item or edit an existing item
-            // TODO: Update the item directly without using databaseReference here
-            if (itemId != null) {
-                getReference("/lists").child(itemId).setValue(item);
-            } else {
-                getReference("/lists").push().setValue(item);
-            }
-
         }
-
     }
 
     /**

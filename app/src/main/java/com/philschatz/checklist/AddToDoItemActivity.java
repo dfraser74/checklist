@@ -34,7 +34,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-public class AddToDoActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
+public class AddToDoItemActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
     public static final String DATE_FORMAT = "MMM d, yyyy";
     public static final String DATE_FORMAT_MONTH_DAY = "MMM d";
     public static final String DATE_FORMAT_TIME = "H:m";
@@ -264,7 +264,7 @@ public class AddToDoActivity extends AppCompatActivity implements DatePickerDial
                 int day = calendar.get(Calendar.DAY_OF_MONTH);
 
 
-                DatePickerDialog datePickerDialog = DatePickerDialog.newInstance(AddToDoActivity.this, year, month, day);
+                DatePickerDialog datePickerDialog = DatePickerDialog.newInstance(AddToDoItemActivity.this, year, month, day);
                 if (theme.equals(MainActivity.DARKTHEME)) {
                     datePickerDialog.setThemeDark(true);
                 }
@@ -290,7 +290,7 @@ public class AddToDoActivity extends AppCompatActivity implements DatePickerDial
                 int hour = calendar.get(Calendar.HOUR_OF_DAY);
                 int minute = calendar.get(Calendar.MINUTE);
 
-                TimePickerDialog timePickerDialog = TimePickerDialog.newInstance(AddToDoActivity.this, hour, minute, DateFormat.is24HourFormat(AddToDoActivity.this));
+                TimePickerDialog timePickerDialog = TimePickerDialog.newInstance(AddToDoItemActivity.this, hour, minute, DateFormat.is24HourFormat(AddToDoItemActivity.this));
                 if (theme.equals(MainActivity.DARKTHEME)) {
                     timePickerDialog.setThemeDark(true);
                 }
@@ -325,7 +325,7 @@ public class AddToDoActivity extends AppCompatActivity implements DatePickerDial
 //                int day = calendar.get(Calendar.DAY_OF_MONTH);
 //
 //
-//                DatePickerDialog datePickerDialog = DatePickerDialog.newInstance(AddToDoActivity.this, year, month, day);
+//                DatePickerDialog datePickerDialog = DatePickerDialog.newInstance(AddToDoItemActivity.this, year, month, day);
 //                if(theme.equals(MainActivity.DARKTHEME)){
 //                    datePickerDialog.setThemeDark(true);
 //                }
@@ -349,7 +349,7 @@ public class AddToDoActivity extends AppCompatActivity implements DatePickerDial
 //                int hour = calendar.get(Calendar.HOUR_OF_DAY);
 //                int minute = calendar.get(Calendar.MINUTE);
 //
-//                TimePickerDialog timePickerDialog = TimePickerDialog.newInstance(AddToDoActivity.this, hour, minute, DateFormat.is24HourFormat(AddToDoActivity.this));
+//                TimePickerDialog timePickerDialog = TimePickerDialog.newInstance(AddToDoItemActivity.this, hour, minute, DateFormat.is24HourFormat(AddToDoItemActivity.this));
 //                if(theme.equals(MainActivity.DARKTHEME)){
 //                    timePickerDialog.setThemeDark(true);
 //                }

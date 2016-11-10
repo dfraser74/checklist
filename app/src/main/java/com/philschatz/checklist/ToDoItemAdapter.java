@@ -22,18 +22,18 @@ import java.util.Date;
  */
 class ToDoItemAdapter extends FirebaseRecyclerAdapter<ToDoItem, ToDoItemViewHolder> implements ItemTouchHelperClass.ItemTouchHelperAdapter {
 
-    private MainActivity mainActivity;
     private final String TAG = ToDoItemAdapter.class.getSimpleName();
 
-    private MainActivity mContext;
+    private ToDoListActivity mContext;
+    private ToDoList mList;
     private ToDoItem mJustCompletedToDoItem;
     private DatabaseReference mJustCompletedToDoItemRef;
 
 
-    public ToDoItemAdapter(MainActivity mainActivity, MainActivity context, Query items) {
+    public ToDoItemAdapter(ToDoListActivity context, ToDoList list, Query items) {
         super(ToDoItem.class, R.layout.list_circle_try, ToDoItemViewHolder.class, items);
-        this.mainActivity = mainActivity;
         mContext = context;
+        mList = list;
     }
 
     @Override
@@ -88,8 +88,9 @@ class ToDoItemAdapter extends FirebaseRecyclerAdapter<ToDoItem, ToDoItemViewHold
 
 
         String firstLetter = item.getTitle().substring(0, 1);
-        // Use the first letter as the hash for the color
-        int color = ColorGenerator.MATERIAL.getColor(firstLetter);
+//        // Use the first letter as the hash for the color
+//        int color = ColorGenerator.MATERIAL.getColor(firstLetter);
+        int color = mList.getColor();
         TextDrawable myDrawable = TextDrawable.builder().beginConfig()
                 .textColor(Color.WHITE)
                 .useFont(Typeface.DEFAULT)
@@ -117,7 +118,7 @@ class ToDoItemAdapter extends FirebaseRecyclerAdapter<ToDoItem, ToDoItemViewHold
     @Override
     public void onItemRemoved(final int position) {
         //Remove this line if not using Google Analytics
-        mContext.app.send(this, "Action", "Swiped Todo Away");
+//        mContext.app.send(this, "Action", "Swiped Todo Away");
 
         mJustCompletedToDoItem = getItem(position);
         mJustCompletedToDoItemRef = getRef(position);
@@ -140,13 +141,7 @@ class ToDoItemAdapter extends FirebaseRecyclerAdapter<ToDoItem, ToDoItemViewHold
                     public void onClick(View v) {
 
                         //Comment the line below if not using Google Analytics
-                        mainActivity.app.send(this, "Action", "UNDO Pressed");
-//                        if (mJustCompletedToDoItem.legacyGetRemindAt() != null) {
-//                            Intent i = new Intent(mContext, TodoNotificationService.class);
-//                            i.putExtra(TodoNotificationService.TODOTEXT, mJustCompletedToDoItem.getTitle());
-//                            i.putExtra(TodoNotificationService.TODOUUID, mJustCompletedToDoItem.getIdentifier());
-//                            mContext.createAlarm(i, mJustCompletedToDoItem.getIdentifier().hashCode(), mJustCompletedToDoItem.legacyGetRemindAt().getTime());
-//                        }
+//                        mainActivity.app.send(this, "Action", "UNDO Pressed");
                         // TODO: PHIL Insertion order should be a float so we can always insert between 2 items
 
                         // Toggle completedAt

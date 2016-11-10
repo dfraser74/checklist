@@ -1,7 +1,6 @@
 package com.philschatz.checklist;
 
 import android.content.Intent;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
@@ -14,12 +13,11 @@ import com.github.curioustechizen.ago.RelativeTimeTextView;
  * This needs to be static because FirebaseAdapter will instantiate this programatically
  */
 @SuppressWarnings("deprecation")
-class ToDoItemViewHolder extends RecyclerView.ViewHolder {
+class ToDoListViewHolder extends RecyclerView.ViewHolder {
 
-    ToDoList mList;
-    ToDoItem mItem;
-    String mItemId;
-    FragmentActivity mContext;
+    ToDoList mItem;
+    String mItemPath;
+    MainActivity mContext;
     View mView;
     LinearLayout linearLayout;
     TextView mToDoTextview;
@@ -27,20 +25,18 @@ class ToDoItemViewHolder extends RecyclerView.ViewHolder {
     RelativeTimeTextView mTimeTextView;
 //            int color = -1;
 
-    public ToDoItemViewHolder(View v) {
+    public ToDoListViewHolder(View v) {
         super(v);
         mView = v;
         v.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ToDoItem item = mItem;
-                String itemId = mItemId;
+                ToDoList item = mItem;
 
-                Intent i = new Intent(mContext, AddToDoItemActivity.class);
-                i.putExtra(ToDoListActivity.TODOLIST, mList);
-                i.putExtra(MainActivity.TODOITEM, item);
-                i.putExtra(MainActivity.TODOITEM_ID, itemId);
-                mContext.startActivityForResult(i, MainActivity.REQUEST_ID_TODO_ITEM);
+                Intent i = new Intent(mContext, ToDoListActivity.class);
+                i.putExtra(TodoNotificationService.TODO_DB_PATH, mItemPath);
+                i.putExtra(ToDoListActivity.TODOLIST, item);
+                mContext.startActivity(i);
             }
         });
         mToDoTextview = (TextView) v.findViewById(R.id.toDoListItemTextview);

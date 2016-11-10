@@ -18,8 +18,7 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:launchMode="singleTop"
-            android:screenOrientation="portrait">
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -27,9 +26,15 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".ToDoListActivity" />
+
         <activity
-            android:name=".AddToDoActivity"
-            android:parentActivityName="com.philschatz.checklist.MainActivity"
+            android:name=".AddToDoListActivity"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".AddToDoItemActivity"
+            android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait" />
 
         <activity
