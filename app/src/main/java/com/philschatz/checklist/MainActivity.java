@@ -157,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
 
         final FirebaseDatabase dbInstance = getFirebaseDatabase();
         final DatabaseReference root = dbInstance.getReference();
-        databaseReference = root.child("lists").child("sandbox").child("items");
+        databaseReference = root.child("items").child("sandbox");
 
 
         setAlarms(databaseReference);
