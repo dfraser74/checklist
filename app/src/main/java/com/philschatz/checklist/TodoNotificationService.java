@@ -84,7 +84,7 @@ public class TodoNotificationService extends IntentService {
                 .setUsesChronometer(true) // Starts ticking up to show how much more reddit time you're spending (beyond the alotted 20min or whatever)
                 .setDefaults(Notification.DEFAULT_SOUND)
                 .setContentIntent(PendingIntent.getActivity(this, hashCode, editReminderIntent, PendingIntent.FLAG_UPDATE_CURRENT))
-//                .setDeleteIntent(PendingIntent.getService(this, hashCode, completeIntent, PendingIntent.FLAG_UPDATE_CURRENT))
+                .setDeleteIntent(PendingIntent.getService(this, hashCode, completeIntent, PendingIntent.FLAG_UPDATE_CURRENT))
                 .addAction(buildSnooze(Snooze2Minutes.class, "2 min", item, dbPath))
                 .addAction(buildSnooze(Snooze20Minutes.class, "20 min", item, dbPath))
                 .addAction(buildSnooze(Snooze1Day.class, "1 day", item, dbPath))

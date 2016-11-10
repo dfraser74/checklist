@@ -128,22 +128,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void setAlarms(Query databaseRef) {
         databaseRef.addChildEventListener(new ToDoItemAlarmListener(this));
-
-        // TODO: This should be set in the RecyclerAdapter whenever an item is added or changed
-//        if (mToDoItemsArrayList != null) {
-//            for (ToDoItem item : mToDoItemsArrayList) {
-//                if (item.legacyGetRemindAt() != null) {
-//                    if (item.legacyGetRemindAt().before(new Date())) {
-//                        item.legacySetRemindAt(null);
-//                        continue;
-//                    }
-//                    Intent i = new Intent(this, TodoNotificationService.class);
-//                    i.putExtra(TodoNotificationService.TODOUUID, item.getIdentifier());
-//                    i.putExtra(TodoNotificationService.TODOTEXT, item.getTitle());
-//                    createAlarm(i, item.getIdentifier().hashCode(), item.legacyGetRemindAt().getTime());
-//                }
-//            }
-//        }
     }
 
     protected void onCreate(Bundle savedInstanceState) {

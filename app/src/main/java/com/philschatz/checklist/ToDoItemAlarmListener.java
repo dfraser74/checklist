@@ -1,9 +1,11 @@
 package com.philschatz.checklist;
 
 import android.app.AlarmManager;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
 import com.google.firebase.database.ChildEventListener;
@@ -79,7 +81,8 @@ class ToDoItemAlarmListener implements ChildEventListener {
         // !hasReminder &&  hasAlarm -> deleteAlarm()
         // !hasReminder && !hasAlarm -> nothing
         Intent i = new Intent(mContext, TodoNotificationService.class);
-        int hashCode = item.getIdentifier().hashCode();
+        String dbPath = Utils.getFirebasePath(dbRef);
+        int hashCode = dbPath.hashCode();
         boolean hasAlarmForItem = hasAlarm(i, hashCode);
         long remindAt = item.remindAt();
 
@@ -88,8 +91,6 @@ class ToDoItemAlarmListener implements ChildEventListener {
             remindAt = 0L;
         }
 
-        String dbPath = Utils.getFirebasePath(dbRef);
-        Log.d(TAG, "dbPath=" + dbPath);
 
         // Set all the fields for the intent (used by createAlarm and updateAlarm)
         i.putExtra(TodoNotificationService.TODOUUID, item.getIdentifier());
@@ -137,6 +138,10 @@ class ToDoItemAlarmListener implements ChildEventListener {
             PendingIntent pi = PendingIntent.getService(mContext, requestCode, i, PendingIntent.FLAG_NO_CREATE);
             pi.cancel();
             getAlarmManager().cancel(pi);
+//            NotificationManager nMgr = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+//            nMgr.cancel(requestCode);
+//
+//            StatusBarNotification[] notifications = nMgr.getActiveNotifications();
             Log.d(TAG, "Alarm PendingIntent Cancelled " + hasAlarm(i, requestCode));
         }
     }

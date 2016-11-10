@@ -87,8 +87,8 @@ public class ReminderActivity extends AppCompatActivity {
                 mItem.isArchivedSet(true);
                 saveData(mItem);
                 changeOccurred();
-                closeApp();
-//                finish();
+//                closeApp();
+                finish();
             }
         });
 
