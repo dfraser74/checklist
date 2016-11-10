@@ -26,6 +26,7 @@ public class ToDoList implements Serializable {
     public String remindAt;
     public String completedAt;
     public boolean isArchived;
+    public int color;
 
 
     public ToDoList() {
@@ -41,10 +42,12 @@ public class ToDoList implements Serializable {
     }
 
     public int getColor() {
-        // Use the following as the default if color is null
-        String firstLetter = getTitle().substring(0, 1);
-        // Use the first letter as the hash for the color
-        return ColorGenerator.MATERIAL.getColor(firstLetter);
+        if (color != 0) {
+            return color;
+        } else {
+            // Use the following as the default if color is null
+            return ColorGenerator.MATERIAL.getColor(getTitle());
+        }
     }
 
 }

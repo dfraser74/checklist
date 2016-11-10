@@ -40,7 +40,6 @@ public class AddToDoListActivity extends AppCompatActivity {
     private FloatingActionButton mToDoSendFloatingActionButton;
     private String mUserEnteredText;
     private Toolbar mToolbar;
-//    private LinearLayout mContainerLayout;
     private String theme;
 
     @Override
@@ -53,7 +52,7 @@ public class AddToDoListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         app = (AnalyticsApplication) getApplication();
-//        setContentView(R.layout.new_to_do_layout);
+
         //Need references to these to change them during light/dark mode
         ImageButton reminderIconImageButton;
         TextView reminderRemindMeTextView;
@@ -68,8 +67,6 @@ public class AddToDoListActivity extends AppCompatActivity {
         }
 
         super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_add_to_do);
-        //Testing out a new layout
         setContentView(R.layout.activity_add_to_do_list);
 
         //Show an X in place of <-
@@ -103,25 +100,12 @@ public class AddToDoListActivity extends AppCompatActivity {
         }
 
 
-//        mContainerLayout = (LinearLayout) findViewById(R.id.todoReminderAndDateContainerLayout);
         mToDoTextBodyEditText = (EditText) findViewById(R.id.userToDoEditText);
-//        mLastSeenTextView = (TextView)findViewById(R.id.toDoLastEditedTextView);
         mToDoSendFloatingActionButton = (FloatingActionButton) findViewById(R.id.makeToDoFloatingActionButton);
 
-
-//        mContainerLayout.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                hideKeyboard(mToDoTextBodyEditText);
-//            }
-//        });
-
-//        TextInputLayout til = (TextInputLayout)findViewById(R.id.toDoCustomTextInput);
-//        til.requestFocus();
         mToDoTextBodyEditText.requestFocus();
         mToDoTextBodyEditText.setText(mUserEnteredText);
         InputMethodManager imm = (InputMethodManager) this.getSystemService(INPUT_METHOD_SERVICE);
-//        imm.showSoftInput(mToDoTextBodyEditText, InputMethodManager.SHOW_IMPLICIT);
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
         mToDoTextBodyEditText.setSelection(mToDoTextBodyEditText.length());
 
@@ -145,15 +129,23 @@ public class AddToDoListActivity extends AppCompatActivity {
         });
 
 
-//        String lastSeen = formatDate(DATE_FORMAT, mLastEdited);
-//        mLastSeenTextView.setText(String.format(getResources().getString(R.string.last_edited), lastSeen));
-
-
         mToDoSendFloatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (mUserEnteredText.length() > 0) {
+                    String capitalizedString = Character.toUpperCase(mUserEnteredText.charAt(0)) + mUserEnteredText.substring(1);
+                    mUserToDoList.setTitle(capitalizedString);
+                } else {
+                    // Crude just-in-case validation
+                    return;
+                }
+
                 hideKeyboard(mToDoTextBodyEditText);
-                app.send(this, "Action", "Make Todo List");
+                app.send(this, "Action", "Make/Edit Todo List");
+
+                // Save
+                MainActivity.getReference("/lists").child(mUserToDoListId).setValue(mUserToDoList);
+
                 makeResult(RESULT_OK);
                 finish();
             }
@@ -166,27 +158,12 @@ public class AddToDoListActivity extends AppCompatActivity {
         return getSharedPreferences(MainActivity.THEME_PREFERENCES, MODE_PRIVATE).getString(MainActivity.THEME_SAVED, MainActivity.LIGHTTHEME);
     }
 
-    public void hideKeyboard(EditText et) {
-
-        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(et.getWindowToken(), 0);
-    }
-
-
-    public void makeResult(int result) {
+    private void makeResult(int result) {
         Intent i = new Intent();
-        if (mUserEnteredText.length() > 0) {
-
-            String capitalizedString = Character.toUpperCase(mUserEnteredText.charAt(0)) + mUserEnteredText.substring(1);
-            mUserToDoList.setTitle(capitalizedString);
-        } else {
-            mUserToDoList.setTitle(mUserEnteredText);
-        }
-
-//        mUserToDoList.setTodoColor(mUserColor);
         i.putExtra(ToDoListActivity.TODOLIST, mUserToDoList);
         i.putExtra(MainActivity.TODOITEM_ID, mUserToDoListId);
         setResult(result, i);
+
     }
 
     @Override
@@ -195,13 +172,18 @@ public class AddToDoListActivity extends AppCompatActivity {
         super.onBackPressed();
     }
 
+    public void hideKeyboard(EditText et) {
+
+        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(et.getWindowToken(), 0);
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 if (NavUtils.getParentActivityName(this) != null) {
-                    app.send(this, "Action", "Discard Todo");
-                    makeResult(RESULT_CANCELED);
+                    app.send(this, "Action", "Discard Todo List");
                     NavUtils.navigateUpFromSameTask(this);
                 }
                 hideKeyboard(mToDoTextBodyEditText);
@@ -212,15 +194,5 @@ public class AddToDoListActivity extends AppCompatActivity {
         }
     }
 
-//    @Override
-//    public void onTimeSet(RadialPickerLayout radialPickerLayout, int hour, int minute) {
-//        setTime(hour, minute);
-//    }
-//
-//    @Override
-//    public void onDateSet(DatePickerDialog datePickerDialog, int year, int month, int day) {
-//        setDate(year, month, day);
-//    }
-//
 }
 

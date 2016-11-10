@@ -219,9 +219,9 @@ public class MainActivity extends AppCompatActivity {
                 item.setTitle(""); // This way the editor will start up blank
                 newTodo.putExtra(ToDoListActivity.TODOLIST, item);
                 // new items do not have a Firebase id yet  TODO PHIL Maybe this should be the point when they get an id
-                newTodo.putExtra(TODOITEM_ID, (String) null);
+                newTodo.putExtra(TODOITEM_ID, getReference("/lists").push().getKey());
 
-                startActivityForResult(newTodo, REQUEST_ID_TODO_LIST);
+                startActivity(newTodo);
             }
         });
 
@@ -327,31 +327,6 @@ public class MainActivity extends AppCompatActivity {
                 databaseReference.child(itemId).setValue(item);
             } else {
                 databaseReference.push().setValue(item);
-            }
-
-        } else if (resultCode != RESULT_CANCELED && requestCode == REQUEST_ID_TODO_LIST) {
-            ToDoList item = (ToDoList) data.getSerializableExtra(ToDoListActivity.TODOLIST);
-            String itemId = data.getStringExtra(TODOITEM_ID);
-
-            if (item.getTitle().length() <= 0) {
-                return;
-            }
-            boolean existed = false;
-
-//            if (item.legacyGetRemindAt() != null) {
-//                Intent i = new Intent(this, TodoNotificationService.class);
-//                i.putExtra(TodoNotificationService.TODOTEXT, item.getTitle());
-//                i.putExtra(TodoNotificationService.TODOUUID, item.getIdentifier());
-//                createAlarm(i, item.getIdentifier().hashCode(), item.legacyGetRemindAt().getTime());
-//                Log.d(TAG, "Alarm Created: "+item.getTitle()+" at "+item.legacyGetRemindAt());
-//            }
-
-            // append a new item or edit an existing item
-            // TODO: Update the item directly without using databaseReference here
-            if (itemId != null) {
-                getReference("/lists").child(itemId).setValue(item);
-            } else {
-                getReference("/lists").push().setValue(item);
             }
 
         }

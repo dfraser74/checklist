@@ -59,13 +59,13 @@ class ToDoListAdapter extends FirebaseRecyclerAdapter<ToDoList, ToDoListViewHold
         holder.mToDoTextview.setText(item.getTitle());
         holder.mToDoTextview.setTextColor(todoTextColor);
 
-        String firstLetter = item.getTitle().substring(0, 1);
+        String firstLetter = item.getTitle().substring(0, 2);
         // Use the first letter as the hash for the color
-        int color = ColorGenerator.MATERIAL.getColor(firstLetter);
+        int color = item.getColor();
         TextDrawable myDrawable = TextDrawable.builder().beginConfig()
                 .textColor(Color.WHITE)
                 .useFont(Typeface.DEFAULT)
-                .toUpperCase()
+//                .toUpperCase()
                 .endConfig()
                 .buildRound(firstLetter, color);
 

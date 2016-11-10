@@ -48,7 +48,11 @@ public class ToDoListActivity extends AppCompatActivity {
     public static final int REQUEST_ID_TODO_ITEM = 100;
     private static final String TAG = "ToDoItemListActivity";
     public static final String TODOLIST = "com.philschatz.checklist.todolist";
+    private static final int EDIT_LIST = 101;
 
+    private Toolbar mToolbar;
+    private String mListPath;
+    private ToDoList mList;
     public ItemTouchHelper itemTouchHelper;
     private RecyclerViewEmptySupport mRecyclerView;
     private FloatingActionButton mAddToDoItemFAB;
@@ -91,16 +95,16 @@ public class ToDoListActivity extends AppCompatActivity {
         editor.apply();
 
         Intent i = getIntent();
-        String dbPath = i.getStringExtra(TodoNotificationService.TODO_DB_PATH);
-        ToDoList list = (ToDoList) i.getSerializableExtra(ToDoListActivity.TODOLIST);
+        mListPath = i.getStringExtra(TodoNotificationService.TODO_DB_PATH);
+        mList = (ToDoList) i.getSerializableExtra(ToDoListActivity.TODOLIST);
 
-        databaseReference = MainActivity.getReference(dbPath);
+        databaseReference = MainActivity.getReference(mListPath);
 
-        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
 
-        toolbar.setTitle(list.getTitle());
-        toolbar.setBackgroundColor(list.getColor());
-        setSupportActionBar(toolbar);
+        mToolbar.setTitle(mList.getTitle());
+        mToolbar.setBackgroundColor(mList.getColor());
+        setSupportActionBar(mToolbar);
 
 
         mCoordLayout = (CoordinatorLayout) findViewById(R.id.myCoordinatorLayout);
@@ -141,7 +145,7 @@ public class ToDoListActivity extends AppCompatActivity {
         // TODO: Checkout android.R.layout.two_line_list_item instead
         // TODO: Try to sort & filter the list : https://stackoverflow.com/questions/30398247/how-to-filter-a-recyclerview-with-a-searchview#30429439
         Query sortedItems = databaseReference.orderByChild("completedAt");
-        ToDoItemAdapter mAdapter = new ToDoItemAdapter(this, list, sortedItems);
+        ToDoItemAdapter mAdapter = new ToDoItemAdapter(this, mList, sortedItems);
 
         mRecyclerView.setAdapter(mAdapter);
 
@@ -191,8 +195,11 @@ public class ToDoListActivity extends AppCompatActivity {
 //                this.recreate();
 //                return true;
             case R.id.preferences:
-                Intent intent = new Intent(this, SettingsActivity.class);
-                startActivity(intent);
+                Intent intent = new Intent(this, AddToDoListActivity.class);
+                String listId = MainActivity.getReference(mListPath).getKey();
+                intent.putExtra(TODOITEM_ID, listId);
+                intent.putExtra(ToDoListActivity.TODOLIST, mList);
+                startActivityForResult(intent, EDIT_LIST);
                 return true;
 
             default:
@@ -202,30 +209,11 @@ public class ToDoListActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode != RESULT_CANCELED && requestCode == REQUEST_ID_TODO_ITEM) {
-            ToDoItem item = (ToDoItem) data.getSerializableExtra(TODOITEM);
-            String itemId = data.getStringExtra(TODOITEM_ID);
-
-            if (item.getTitle().length() <= 0) {
-                return;
-            }
-            boolean existed = false;
-
-//            if (item.legacyGetRemindAt() != null) {
-//                Intent i = new Intent(this, TodoNotificationService.class);
-//                i.putExtra(TodoNotificationService.TODOTEXT, item.getTitle());
-//                i.putExtra(TodoNotificationService.TODOUUID, item.getIdentifier());
-//                createAlarm(i, item.getIdentifier().hashCode(), item.legacyGetRemindAt().getTime());
-//                Log.d(TAG, "Alarm Created: "+item.getTitle()+" at "+item.legacyGetRemindAt());
-//            }
-
-            // append a new item or edit an existing item
-            // TODO: Update the item directly without using databaseReference here
-            if (itemId != null) {
-                databaseReference.child(itemId).setValue(item);
-            } else {
-                databaseReference.push().setValue(item);
-            }
+        if (resultCode != RESULT_CANCELED && requestCode == EDIT_LIST) {
+            mList = (ToDoList) data.getSerializableExtra(TODOLIST);
+            // update the toolbar
+            mToolbar.setTitle(mList.getTitle());
+            mToolbar.setBackgroundColor(mList.getColor());
 
         }
     }
