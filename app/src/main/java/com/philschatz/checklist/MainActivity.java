@@ -40,8 +40,6 @@ Notes for what needs to be worked on:
  */
 
 public class MainActivity extends AppCompatActivity {
-    public static final String TODOITEM = "com.philschatz.checklist.MainActivity.theToDoItem";
-    public static final String TODOITEM_ID = "com.philschatz.checklist.MainActivity.theToDoItemId";
     public static final String FILENAME = "todoitems.json";
     public static final String SHARED_PREF_DATA_SET_CHANGED = "com.philschatz.checklist.datasetchanged";
     public static final String CHANGE_OCCURED = "com.philschatz.checklist.changeoccured";
@@ -51,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String DARKTHEME = "com.philschatz.checklist.darktheme";
     public static final String LIGHTTHEME = "com.philschatz.checklist.lighttheme";
     public static final int REQUEST_ID_TODO_ITEM = 100;
-    private static final String TAG = "ToDoItemListActivity";
+    private static final String TAG = "MainActivity";
     private static final int REQUEST_ID_TODO_LIST = 200;
 
     public ItemTouchHelper itemTouchHelper;
@@ -87,6 +85,21 @@ public class MainActivity extends AppCompatActivity {
     }
     public static DatabaseReference getReference(String path) {
         return getFirebaseDatabase().getReference(path);
+    }
+    public static DatabaseReference getListsReference() {
+        return getFirebaseDatabase().getReference().child("lists");
+    }
+    public static DatabaseReference getListReference(String listKey) {
+        return getFirebaseDatabase().getReference().child("lists").child(listKey);
+    }
+    public static DatabaseReference getListItemsReference() {
+        return getFirebaseDatabase().getReference().child("list-items1");
+    }
+    public static DatabaseReference getListItemsReference(String listKey) {
+        return getFirebaseDatabase().getReference().child("list-items1").child(listKey);
+    }
+    public static DatabaseReference getListItemReference(String listKey, String itemKey) {
+        return getFirebaseDatabase().getReference().child("list-items1").child(listKey).child(itemKey);
     }
 
     @Override
@@ -140,9 +153,11 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-//                String listId = dataSnapshot.getKey();
-                ToDoItemAlarmListener l = new ToDoItemAlarmListener(MainActivity.this);
-                dataSnapshot.getRef().addChildEventListener(l);
+                Object listMap = dataSnapshot.getValue();
+                ToDoList list = dataSnapshot.getValue(ToDoList.class);
+                String listKey = dataSnapshot.getKey();
+                ToDoItemAlarmListener l = new ToDoItemAlarmListener(MainActivity.this, list, listKey);
+                getListItemsReference(listKey).addChildEventListener(l);
 //                listeners.put(listId, l);
             }
 
@@ -194,10 +209,10 @@ public class MainActivity extends AppCompatActivity {
         editor.putBoolean(CHANGE_OCCURED, false);
         editor.apply();
 
-        databaseReference = getReference("lists");
+        databaseReference = getListsReference();
 
 
-        setAlarms(getReference("items"));
+        setAlarms(getListsReference());
 
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("My Lists");
@@ -215,11 +230,11 @@ public class MainActivity extends AppCompatActivity {
                 app.send(this, "Action", "FAB pressed");
                 Intent newTodo = new Intent(MainActivity.this, AddToDoListActivity.class);
 
-                ToDoList item = new ToDoList();
-                item.setTitle(""); // This way the editor will start up blank
-                newTodo.putExtra(ToDoListActivity.TODOLIST, item);
-                // new items do not have a Firebase id yet  TODO PHIL Maybe this should be the point when they get an id
-                newTodo.putExtra(TODOITEM_ID, getReference("/lists").push().getKey());
+                ToDoList list = new ToDoList();
+                list.setTitle(""); // This way the editor will start up blank
+                newTodo.putExtra(Const.TODOLISTSNAPSHOT, list);
+                // new items do not have a Firebase id yet  TODO PHIL Maybe this should be the point when they get a key
+                newTodo.putExtra(Const.TODOLISTKEY, getListsReference().push().getKey());
 
                 startActivity(newTodo);
             }
@@ -305,8 +320,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != RESULT_CANCELED && requestCode == REQUEST_ID_TODO_ITEM) {
-            ToDoItem item = (ToDoItem) data.getSerializableExtra(TODOITEM);
-            String itemId = data.getStringExtra(TODOITEM_ID);
+            ToDoItem item = (ToDoItem) data.getSerializableExtra(Const.TODOITEMSNAPSHOT);
+            String itemId = data.getStringExtra(Const.TODOITEMKEY);
 
             if (item.getTitle().length() <= 0) {
                 return;

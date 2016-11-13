@@ -1,6 +1,5 @@
 package com.philschatz.checklist;
 
-import android.animation.Animator;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -9,34 +8,22 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
-import com.wdullaer.materialdatetimepicker.time.RadialPickerLayout;
-import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
-
-import java.util.Calendar;
-import java.util.Date;
 
 public class AddToDoListActivity extends AppCompatActivity {
     AnalyticsApplication app;
     private EditText mToDoTextBodyEditText;
     private ToDoList mUserToDoList;
-    private String mUserToDoListId;
+    private String mUserToDoListKey;
     private FloatingActionButton mToDoSendFloatingActionButton;
     private String mUserEnteredText;
     private Toolbar mToolbar;
@@ -87,8 +74,11 @@ public class AddToDoListActivity extends AppCompatActivity {
         }
 
 
-        mUserToDoList = (ToDoList) getIntent().getSerializableExtra(ToDoListActivity.TODOLIST);
-        mUserToDoListId = getIntent().getStringExtra(MainActivity.TODOITEM_ID);
+        mUserToDoList = (ToDoList) getIntent().getSerializableExtra(Const.TODOLISTSNAPSHOT);
+        mUserToDoListKey = getIntent().getStringExtra(Const.TODOLISTKEY);
+
+        if (mUserToDoList == null) { throw new RuntimeException("missing " + Const.TODOLISTSNAPSHOT); }
+        if (mUserToDoListKey == null) { throw new RuntimeException("missing " + Const.TODOLISTKEY); }
 
         mUserEnteredText = mUserToDoList.getTitle();
 
@@ -144,7 +134,7 @@ public class AddToDoListActivity extends AppCompatActivity {
                 app.send(this, "Action", "Make/Edit Todo List");
 
                 // Save
-                MainActivity.getReference("/lists").child(mUserToDoListId).setValue(mUserToDoList);
+                MainActivity.getListReference(mUserToDoListKey).setValue(mUserToDoList);
 
                 makeResult(RESULT_OK);
                 finish();
@@ -160,8 +150,8 @@ public class AddToDoListActivity extends AppCompatActivity {
 
     private void makeResult(int result) {
         Intent i = new Intent();
-        i.putExtra(ToDoListActivity.TODOLIST, mUserToDoList);
-        i.putExtra(MainActivity.TODOITEM_ID, mUserToDoListId);
+        i.putExtra(Const.TODOLISTSNAPSHOT, mUserToDoList);
+        i.putExtra(Const.TODOITEMKEY, mUserToDoListKey);
         setResult(result, i);
 
     }

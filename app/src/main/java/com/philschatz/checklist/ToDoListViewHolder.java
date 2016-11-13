@@ -15,8 +15,8 @@ import com.github.curioustechizen.ago.RelativeTimeTextView;
 @SuppressWarnings("deprecation")
 class ToDoListViewHolder extends RecyclerView.ViewHolder {
 
-    ToDoList mItem;
-    String mItemPath;
+    ToDoList mList;
+    String mListKey;
     MainActivity mContext;
     View mView;
     LinearLayout linearLayout;
@@ -31,11 +31,11 @@ class ToDoListViewHolder extends RecyclerView.ViewHolder {
         v.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ToDoList item = mItem;
+                ToDoList item = mList;
 
                 Intent i = new Intent(mContext, ToDoListActivity.class);
-                i.putExtra(TodoNotificationService.TODO_DB_PATH, mItemPath);
-                i.putExtra(ToDoListActivity.TODOLIST, item);
+                i.putExtra(Const.TODOLISTSNAPSHOT, mList);
+                i.putExtra(Const.TODOLISTKEY, mListKey);
                 mContext.startActivity(i);
             }
         });

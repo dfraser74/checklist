@@ -22,6 +22,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 
+
 /*
 Notes for what needs to be worked on:
 
@@ -35,23 +36,18 @@ Notes for what needs to be worked on:
  */
 
 public class ToDoListActivity extends AppCompatActivity {
-    public static final String TODOITEM = "com.philschatz.checklist.MainActivity.theToDoItem";
-    public static final String TODOITEM_ID = "com.philschatz.checklist.MainActivity.theToDoItemId";
-    public static final String FILENAME = "todoitems.json";
     public static final String SHARED_PREF_DATA_SET_CHANGED = "com.philschatz.checklist.datasetchanged";
     public static final String CHANGE_OCCURED = "com.philschatz.checklist.changeoccured";
     public static final String THEME_PREFERENCES = "com.philschatz.checklist.themepref";
-    public static final String RECREATE_ACTIVITY = "com.philschatz.checklist.recreateactivity";
     public static final String THEME_SAVED = "com.philschatz.checklist.savedtheme";
     public static final String DARKTHEME = "com.philschatz.checklist.darktheme";
     public static final String LIGHTTHEME = "com.philschatz.checklist.lighttheme";
     public static final int REQUEST_ID_TODO_ITEM = 100;
-    private static final String TAG = "ToDoItemListActivity";
-    public static final String TODOLIST = "com.philschatz.checklist.todolist";
+    private static final String TAG = ToDoListActivity.class.getSimpleName();
     private static final int REQUEST_ID_EDIT_LIST = 101;
 
     private Toolbar mToolbar;
-    private String mListPath;
+    private String mListKey;
     private ToDoList mList;
     public ItemTouchHelper itemTouchHelper;
     private RecyclerViewEmptySupport mRecyclerView;
@@ -95,10 +91,10 @@ public class ToDoListActivity extends AppCompatActivity {
         editor.apply();
 
         Intent i = getIntent();
-        mListPath = i.getStringExtra(TodoNotificationService.TODO_DB_PATH);
-        mList = (ToDoList) i.getSerializableExtra(ToDoListActivity.TODOLIST);
+        mListKey = i.getStringExtra(Const.TODOLISTKEY);
+        mList = (ToDoList) i.getSerializableExtra(Const.TODOLISTSNAPSHOT);
 
-        databaseReference = MainActivity.getReference(mListPath);
+        databaseReference = MainActivity.getListItemsReference(mListKey);
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
 
@@ -119,9 +115,9 @@ public class ToDoListActivity extends AppCompatActivity {
                 Intent newTodo = new Intent(ToDoListActivity.this, AddToDoItemActivity.class);
                 ToDoItem item = new ToDoItem();
                 item.setTitle(""); // This way the editor will start up blank
-                newTodo.putExtra(TODOITEM, item);
+                newTodo.putExtra(Const.TODOITEMSNAPSHOT, item);
                 // new items do not have a Firebase id yet  TODO PHIL Maybe this should be the point when they get an id
-                newTodo.putExtra(TODOITEM_ID, databaseReference.push().getKey());
+                newTodo.putExtra(Const.TODOITEMKEY, databaseReference.push().getKey());
 
                 startActivityForResult(newTodo, REQUEST_ID_TODO_ITEM);
             }
@@ -196,9 +192,8 @@ public class ToDoListActivity extends AppCompatActivity {
 //                return true;
             case R.id.preferences:
                 Intent intent = new Intent(this, AddToDoListActivity.class);
-                String listId = MainActivity.getReference(mListPath).getKey();
-                intent.putExtra(TODOITEM_ID, listId);
-                intent.putExtra(ToDoListActivity.TODOLIST, mList);
+                intent.putExtra(Const.TODOLISTKEY, mListKey);
+                intent.putExtra(Const.TODOLISTSNAPSHOT, mList);
                 startActivityForResult(intent, REQUEST_ID_EDIT_LIST);
                 return true;
 
@@ -210,13 +205,13 @@ public class ToDoListActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != RESULT_CANCELED && requestCode == REQUEST_ID_TODO_ITEM) {
-            ToDoItem item = (ToDoItem) data.getSerializableExtra(TODOITEM);
-            String id = data.getStringExtra(TODOITEM_ID);
-            String listId = MainActivity.getReference(mListPath).getKey();
-            MainActivity.getReference("/items/" + listId + "/" + id).setValue(item);
+            ToDoItem item = (ToDoItem) data.getSerializableExtra(Const.TODOITEMSNAPSHOT);
+            String itemKey = data.getStringExtra(Const.TODOITEMKEY);
+            // TODO: Use the list key here
+            MainActivity.getListItemReference(mListKey, itemKey).setValue(item);
         }
         if (resultCode != RESULT_CANCELED && requestCode == REQUEST_ID_EDIT_LIST) {
-            mList = (ToDoList) data.getSerializableExtra(TODOLIST);
+            mList = (ToDoList) data.getSerializableExtra(Const.TODOLISTSNAPSHOT);
             // update the toolbar
             mToolbar.setTitle(mList.getTitle());
             mToolbar.setBackgroundColor(mList.getColor());

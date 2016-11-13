@@ -18,7 +18,7 @@ public class Utils {
         return toolbarHeight;
     }
 
-    public static String getFirebasePath(DatabaseReference ref) {
+    private static String getFirebasePath(DatabaseReference ref) {
         String key = ref.getKey();
         DatabaseReference parent = ref.getParent();
         if (parent != null) {

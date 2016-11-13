@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.philschatz.checklist.Const;
 import com.philschatz.checklist.MainActivity;
 import com.philschatz.checklist.ToDoItem;
 import com.philschatz.checklist.TodoNotificationService;
@@ -32,10 +33,16 @@ public abstract class AbstractNotificationService extends IntentService {
 
     @Override
     protected final void onHandleIntent(Intent intent) {
-        String dbPath = intent.getStringExtra(TodoNotificationService.TODO_DB_PATH);
-        ToDoItem item = (ToDoItem) intent.getSerializableExtra(TodoNotificationService.TODOITEMSNAPSHOT);
-        int hashCode = intent.getIntExtra(TodoNotificationService.NOTIFICATION_ID, dbPath.hashCode());
-        DatabaseReference dbRef = MainActivity.getFirebaseDatabase().getReference(dbPath);
+        String listKey = intent.getStringExtra(Const.TODOLISTKEY);
+        String itemKey = intent.getStringExtra(Const.TODOITEMKEY);
+        ToDoItem item = (ToDoItem) intent.getSerializableExtra(Const.TODOITEMSNAPSHOT);
+        int hashCode = intent.getIntExtra(Const.NOTIFICATIONID, itemKey.hashCode());
+
+        if (listKey == null) { throw new RuntimeException("missing: " + Const.TODOLISTKEY); }
+        if (itemKey == null) { throw new RuntimeException("missing: " + Const.TODOITEMKEY); }
+        if (item    == null) { throw new RuntimeException("missing: " + Const.TODOITEMSNAPSHOT); }
+
+        DatabaseReference dbRef = MainActivity.getListItemReference(listKey, itemKey);
 
         Map<String, Object> props = updatedKeys(item);
 

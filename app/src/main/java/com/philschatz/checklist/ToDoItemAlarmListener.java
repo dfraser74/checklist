@@ -1,11 +1,9 @@
 package com.philschatz.checklist;
 
 import android.app.AlarmManager;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
 import com.google.firebase.database.ChildEventListener;
@@ -22,9 +20,14 @@ class ToDoItemAlarmListener implements ChildEventListener {
     private static String TAG = "ToDoItem Alarm Listener";
 
     private Context mContext;
+    private ToDoList mList;
+    private String mListKey;
 
-    public ToDoItemAlarmListener(Context c) {
+    public ToDoItemAlarmListener(Context c, ToDoList list, String listKey) {
+
         mContext = c;
+        mList = list;
+        mListKey = listKey;
     }
 
     @Override
@@ -81,8 +84,7 @@ class ToDoItemAlarmListener implements ChildEventListener {
         // !hasReminder &&  hasAlarm -> deleteAlarm()
         // !hasReminder && !hasAlarm -> nothing
         Intent i = new Intent(mContext, TodoNotificationService.class);
-        String dbPath = Utils.getFirebasePath(dbRef);
-        int hashCode = dbPath.hashCode();
+        int hashCode = dbRef.getKey().hashCode();
         boolean hasAlarmForItem = hasAlarm(i, hashCode);
         long remindAt = item.remindAt();
 
@@ -93,12 +95,10 @@ class ToDoItemAlarmListener implements ChildEventListener {
 
 
         // Set all the fields for the intent (used by createAlarm and updateAlarm)
-        i.putExtra(TodoNotificationService.TODOUUID, item.getIdentifier());
-        i.putExtra(TodoNotificationService.TODOTEXT, item.getTitle());
-        i.putExtra(TodoNotificationService.TODOREMINDAT, item.hasReminder() ? new Date(item.remindAt()) : null);
-        // TODO: Replace the previous fields with just the TODO_DB_PATH
-        i.putExtra(TodoNotificationService.TODOITEMSNAPSHOT, item);
-        i.putExtra(TodoNotificationService.TODO_DB_PATH, dbPath);
+        i.putExtra(Const.TODOITEMSNAPSHOT, item);
+        i.putExtra(Const.TODOITEMKEY, dbRef.getKey());
+        i.putExtra(Const.TODOLISTSNAPSHOT, mList);
+        i.putExtra(Const.TODOLISTKEY, mListKey);
 
         if (remindAt != 0L && !hasAlarmForItem) {
             // If the reminder was set in the past then make sure it appears

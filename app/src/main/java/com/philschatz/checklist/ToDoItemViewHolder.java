@@ -18,7 +18,7 @@ class ToDoItemViewHolder extends RecyclerView.ViewHolder {
 
     ToDoList mList;
     ToDoItem mItem;
-    String mItemId;
+    String mItemKey;
     FragmentActivity mContext;
     View mView;
     LinearLayout linearLayout;
@@ -33,13 +33,11 @@ class ToDoItemViewHolder extends RecyclerView.ViewHolder {
         v.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ToDoItem item = mItem;
-                String itemId = mItemId;
 
                 Intent i = new Intent(mContext, AddToDoItemActivity.class);
-                i.putExtra(ToDoListActivity.TODOLIST, mList);
-                i.putExtra(MainActivity.TODOITEM, item);
-                i.putExtra(MainActivity.TODOITEM_ID, itemId);
+                i.putExtra(Const.TODOLISTSNAPSHOT, mList);
+                i.putExtra(Const.TODOITEMSNAPSHOT, mItem);
+                i.putExtra(Const.TODOITEMKEY, mItemKey);
                 mContext.startActivityForResult(i, MainActivity.REQUEST_ID_TODO_ITEM);
             }
         });

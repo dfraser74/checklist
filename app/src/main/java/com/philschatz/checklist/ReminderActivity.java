@@ -57,9 +57,10 @@ public class ReminderActivity extends AppCompatActivity {
 
 
         Intent i = getIntent();
-        mItem = (ToDoItem) i.getSerializableExtra(TodoNotificationService.TODOITEMSNAPSHOT);
-        String dbPath = i.getStringExtra(TodoNotificationService.TODO_DB_PATH);
-        mDbRef = MainActivity.getFirebaseDatabase().getReference(dbPath);
+        mItem = (ToDoItem) i.getSerializableExtra(Const.TODOITEMSNAPSHOT);
+        String listKey = i.getStringExtra(Const.TODOLISTKEY);
+        String itemKey = i.getStringExtra(Const.TODOITEMKEY);
+        mDbRef = MainActivity.getListItemReference(listKey, itemKey);
 
         snoozeOptionsArray = getResources().getStringArray(R.array.snooze_options);
 

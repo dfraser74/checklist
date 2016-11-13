@@ -3,14 +3,12 @@ package com.philschatz.checklist;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.View;
 
 import com.amulyakhare.textdrawable.TextDrawable;
-import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
@@ -35,11 +33,11 @@ class ToDoListAdapter extends FirebaseRecyclerAdapter<ToDoList, ToDoListViewHold
     }
 
     @Override
-    public void populateViewHolder(ToDoListViewHolder holder, ToDoList item, int position) {
+    public void populateViewHolder(ToDoListViewHolder holder, ToDoList list, int position) {
 
         holder.mContext = mContext;
-        holder.mItem = item;
-        holder.mItemPath = "/items/" + getRef(position).getKey();
+        holder.mList = list;
+        holder.mListKey = getRef(position).getKey();
         SharedPreferences sharedPreferences = mContext.getSharedPreferences(MainActivity.THEME_PREFERENCES, Context.MODE_PRIVATE);
         //Background color for each to-do item. Necessary for night/day mode
         int bgColor;
@@ -56,12 +54,12 @@ class ToDoListAdapter extends FirebaseRecyclerAdapter<ToDoList, ToDoListViewHold
 
         holder.mTimeTextView.setVisibility(View.GONE);
         holder.mToDoTextview.setMaxLines(2);
-        holder.mToDoTextview.setText(item.getTitle());
+        holder.mToDoTextview.setText(list.getTitle());
         holder.mToDoTextview.setTextColor(todoTextColor);
 
-        String firstLetter = item.getTitle().substring(0, 2);
+        String firstLetter = list.getTitle().substring(0, 2);
         // Use the first letter as the hash for the color
-        int color = item.getColor();
+        int color = list.getColor();
         TextDrawable myDrawable = TextDrawable.builder().beginConfig()
                 .textColor(Color.WHITE)
                 .useFont(Typeface.DEFAULT)
