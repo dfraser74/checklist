@@ -118,6 +118,7 @@ public class ToDoListActivity extends AppCompatActivity {
                 newTodo.putExtra(Const.TODOITEMSNAPSHOT, item);
                 // new items do not have a Firebase id yet  TODO PHIL Maybe this should be the point when they get an id
                 newTodo.putExtra(Const.TODOITEMKEY, databaseReference.push().getKey());
+                newTodo.putExtra(Const.TODOLISTKEY, mListKey);
 
                 startActivityForResult(newTodo, REQUEST_ID_TODO_ITEM);
             }
@@ -141,7 +142,7 @@ public class ToDoListActivity extends AppCompatActivity {
         // TODO: Checkout android.R.layout.two_line_list_item instead
         // TODO: Try to sort & filter the list : https://stackoverflow.com/questions/30398247/how-to-filter-a-recyclerview-with-a-searchview#30429439
         Query sortedItems = databaseReference.orderByChild("completedAt");
-        ToDoItemAdapter mAdapter = new ToDoItemAdapter(this, mList, sortedItems);
+        ToDoItemAdapter mAdapter = new ToDoItemAdapter(this, mList, mListKey, sortedItems);
 
         mRecyclerView.setAdapter(mAdapter);
 
@@ -204,12 +205,12 @@ public class ToDoListActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode != RESULT_CANCELED && requestCode == REQUEST_ID_TODO_ITEM) {
-            ToDoItem item = (ToDoItem) data.getSerializableExtra(Const.TODOITEMSNAPSHOT);
-            String itemKey = data.getStringExtra(Const.TODOITEMKEY);
-            // TODO: Use the list key here
-            MainActivity.getListItemReference(mListKey, itemKey).setValue(item);
-        }
+//        if (resultCode != RESULT_CANCELED && requestCode == REQUEST_ID_TODO_ITEM) {
+//            ToDoItem item = (ToDoItem) data.getSerializableExtra(Const.TODOITEMSNAPSHOT);
+//            String itemKey = data.getStringExtra(Const.TODOITEMKEY);
+//            // TODO: Use the list key here
+//            MainActivity.getListItemReference(mListKey, itemKey).setValue(item);
+//        }
         if (resultCode != RESULT_CANCELED && requestCode == REQUEST_ID_EDIT_LIST) {
             mList = (ToDoList) data.getSerializableExtra(Const.TODOLISTSNAPSHOT);
             // update the toolbar

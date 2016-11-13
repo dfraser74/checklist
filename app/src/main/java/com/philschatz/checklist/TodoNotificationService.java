@@ -63,7 +63,7 @@ public class TodoNotificationService extends IntentService {
         Log.d("OskarSchindler", "onHandleIntent called");
         NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
-        Intent editReminderIntent = new Intent(this, ReminderActivity.class);
+        Intent editReminderIntent = new Intent(this, AddToDoItemActivity.class);
         editReminderIntent.putExtra(Const.TODOITEMSNAPSHOT, item);
         editReminderIntent.putExtra(Const.TODOLISTKEY, listKey);
         editReminderIntent.putExtra(Const.TODOITEMKEY, itemKey);
@@ -96,8 +96,8 @@ public class TodoNotificationService extends IntentService {
                 .setWhen(item.remindAt())
                 .build();
 
-
         manager.notify(hashCode, notification);
+
 //        Uri defaultRingone = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 //        MediaPlayer mp = new MediaPlayer();
 //        try{

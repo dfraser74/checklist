@@ -128,7 +128,7 @@ public class ToDoItem implements Serializable {
 //    }
 
 
-    private static long fromString(String at) {
+    public static long fromString(String at) {
         if (at != null) {
             return DateTimeFormatter.ISO_INSTANT.parse(at).getLong(ChronoField.INSTANT_SECONDS) * 1000;
         }

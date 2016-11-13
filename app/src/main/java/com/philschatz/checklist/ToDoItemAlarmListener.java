@@ -1,6 +1,7 @@
 package com.philschatz.checklist;
 
 import android.app.AlarmManager;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +13,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 
 import java.util.Date;
+
+import static android.content.Context.NOTIFICATION_SERVICE;
 
 /**
  * This is a listener for Firebase events and updates the desktop notifications
@@ -100,16 +103,25 @@ class ToDoItemAlarmListener implements ChildEventListener {
         i.putExtra(Const.TODOLISTSNAPSHOT, mList);
         i.putExtra(Const.TODOLISTKEY, mListKey);
 
+        NotificationManager manager = (NotificationManager) mContext.getSystemService(NOTIFICATION_SERVICE);
+
         if (remindAt != 0L && !hasAlarmForItem) {
             // If the reminder was set in the past then make sure it appears
             // (just in case; this could occur when undoing an accidentally-completed item)
             if (remindAt < System.currentTimeMillis()) {
                 remindAt = System.currentTimeMillis() + 10 * 1000;
             }
+            // If there was a desktop notification for this item, then cancel it
+            manager.cancel(hashCode);
+
             createAlarm(i, hashCode, remindAt);
         } else if (remindAt == 0L && hasAlarmForItem) {
+            // If there was a desktop notification for this item, then cancel it
+            manager.cancel(hashCode);
             deleteAlarm(i, hashCode);
         } else if (remindAt != 0L && hasAlarmForItem) {
+            // If there was a desktop notification for this item, then cancel it
+            manager.cancel(hashCode);
             updateAlarm(i, hashCode, remindAt);
         } else {
             // Do nothing because the alarm state did not change
@@ -138,10 +150,7 @@ class ToDoItemAlarmListener implements ChildEventListener {
             PendingIntent pi = PendingIntent.getService(mContext, requestCode, i, PendingIntent.FLAG_NO_CREATE);
             pi.cancel();
             getAlarmManager().cancel(pi);
-//            NotificationManager nMgr = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-//            nMgr.cancel(requestCode);
-//
-//            StatusBarNotification[] notifications = nMgr.getActiveNotifications();
+
             Log.d(TAG, "Alarm PendingIntent Cancelled " + hasAlarm(i, requestCode));
         }
     }

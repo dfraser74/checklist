@@ -24,13 +24,15 @@ class ToDoItemAdapter extends FirebaseRecyclerAdapter<ToDoItem, ToDoItemViewHold
     private ToDoListActivity mContext;
     private ToDoList mList;
     private ToDoItem mJustCompletedToDoItem;
+    private String mListKey;
     private DatabaseReference mJustCompletedToDoItemRef;
 
 
-    public ToDoItemAdapter(ToDoListActivity context, ToDoList list, Query items) {
+    public ToDoItemAdapter(ToDoListActivity context, ToDoList list, String listKey, Query items) {
         super(ToDoItem.class, R.layout.list_circle_try, ToDoItemViewHolder.class, items);
         mContext = context;
         mList = list;
+        mListKey = listKey;
     }
 
     @Override
@@ -39,6 +41,7 @@ class ToDoItemAdapter extends FirebaseRecyclerAdapter<ToDoItem, ToDoItemViewHold
         holder.mContext = mContext;
         holder.mItem = item;
         holder.mItemKey = getRef(position).getKey();
+        holder.mListKey = mListKey; // TODO: Look this up in a less-hacky way
         SharedPreferences sharedPreferences = mContext.getSharedPreferences(MainActivity.THEME_PREFERENCES, Context.MODE_PRIVATE);
         //Background color for each to-do item. Necessary for night/day mode
         int bgColor;

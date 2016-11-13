@@ -19,6 +19,7 @@ class ToDoItemViewHolder extends RecyclerView.ViewHolder {
     ToDoList mList;
     ToDoItem mItem;
     String mItemKey;
+    String mListKey;
     FragmentActivity mContext;
     View mView;
     LinearLayout linearLayout;
@@ -38,7 +39,8 @@ class ToDoItemViewHolder extends RecyclerView.ViewHolder {
                 i.putExtra(Const.TODOLISTSNAPSHOT, mList);
                 i.putExtra(Const.TODOITEMSNAPSHOT, mItem);
                 i.putExtra(Const.TODOITEMKEY, mItemKey);
-                mContext.startActivityForResult(i, MainActivity.REQUEST_ID_TODO_ITEM);
+                i.putExtra(Const.TODOLISTKEY, mListKey);
+                mContext.startActivity(i);
             }
         });
         mToDoTextview = (TextView) v.findViewById(R.id.toDoListItemTextview);

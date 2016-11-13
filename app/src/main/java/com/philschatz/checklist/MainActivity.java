@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
         return getFirebaseDatabase().getReference().child("list-items1").child(listKey);
     }
     public static DatabaseReference getListItemReference(String listKey, String itemKey) {
-        return getFirebaseDatabase().getReference().child("list-items1").child(listKey).child(itemKey);
+         return getFirebaseDatabase().getReference().child("list-items1").child(listKey).child(itemKey);
     }
 
     @Override
@@ -153,7 +153,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Object listMap = dataSnapshot.getValue();
                 ToDoList list = dataSnapshot.getValue(ToDoList.class);
                 String listKey = dataSnapshot.getKey();
                 ToDoItemAlarmListener l = new ToDoItemAlarmListener(MainActivity.this, list, listKey);
