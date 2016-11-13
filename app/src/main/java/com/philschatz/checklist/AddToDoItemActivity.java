@@ -326,6 +326,12 @@ public class AddToDoItemActivity extends AppCompatActivity implements AdapterVie
                     app.send(this, "Action", "Make Todo");
                     makeResult(RESULT_OK);
 
+                    if (mUserReminderDate != null) {
+                        mItem.remindAtSet(mUserReminderDate.getTime());
+                    } else {
+                        mItem.clearReminder();
+                    }
+
                     MainActivity.getListItemReference(mListKey, mItemKey).setValue(mItem);
                     finish();
                 }

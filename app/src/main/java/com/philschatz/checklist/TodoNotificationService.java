@@ -8,9 +8,8 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.philschatz.checklist.notifications.CompleteNotificationService;
-import com.philschatz.checklist.notifications.Snooze1Day;
 import com.philschatz.checklist.notifications.Snooze20Minutes;
-import com.philschatz.checklist.notifications.Snooze2Minutes;
+import com.philschatz.checklist.notifications.Snooze5Minutes;
 
 /*
  * This generates the homescreen notification for checklist items that have a reminder
@@ -22,14 +21,14 @@ public class TodoNotificationService extends IntentService {
     }
 
     // !!! Make sure you add an entry to AndroidManifest.xml
-    private Notification.Action buildSnooze(Class intentService, String label, ToDoItem item, String listKey, String itemKey) {
+    private Notification.Action buildSnooze(Class intentService, String label, ToDoItem item, String listKey, String itemKey, int icon) {
         Intent snoozeIntent = new Intent(this, intentService);
         snoozeIntent.putExtra(Const.TODOITEMSNAPSHOT, item);
         snoozeIntent.putExtra(Const.TODOLISTKEY, listKey);
         snoozeIntent.putExtra(Const.TODOITEMKEY, itemKey);
         int hashCode = itemKey.hashCode();
         PendingIntent snoozePendingIntent = PendingIntent.getService(this, hashCode, snoozeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        Notification.Action snoozeAction = new Notification.Action.Builder(R.drawable.ic_snooze_white_24dp, label, snoozePendingIntent)
+        Notification.Action snoozeAction = new Notification.Action.Builder(icon, label, snoozePendingIntent)
                 .build();
         return snoozeAction;
     }
@@ -68,10 +67,15 @@ public class TodoNotificationService extends IntentService {
         editReminderIntent.putExtra(Const.TODOLISTKEY, listKey);
         editReminderIntent.putExtra(Const.TODOITEMKEY, itemKey);
 
-        Intent completeIntent = new Intent(this, CompleteNotificationService.class);
-        completeIntent.putExtra(Const.TODOITEMSNAPSHOT, item);
-        completeIntent.putExtra(Const.TODOLISTKEY, listKey);
-        completeIntent.putExtra(Const.TODOITEMKEY, itemKey);
+//        Intent completeIntent = new Intent(this, CompleteNotificationService.class);
+//        completeIntent.putExtra(Const.TODOITEMSNAPSHOT, item);
+//        completeIntent.putExtra(Const.TODOLISTKEY, listKey);
+//        completeIntent.putExtra(Const.TODOITEMKEY, itemKey);
+
+        Intent snooze20 = new Intent(this, Snooze20Minutes.class);
+        snooze20.putExtra(Const.TODOITEMSNAPSHOT, item);
+        snooze20.putExtra(Const.TODOLISTKEY, listKey);
+        snooze20.putExtra(Const.TODOITEMKEY, itemKey);
 
 
         if (!item.hasReminder()) {
@@ -89,10 +93,9 @@ public class TodoNotificationService extends IntentService {
                 .setUsesChronometer(true) // Starts ticking up to show how much more reddit time you're spending (beyond the alotted 20min or whatever)
                 .setDefaults(Notification.DEFAULT_SOUND)
                 .setContentIntent(PendingIntent.getActivity(this, hashCode, editReminderIntent, PendingIntent.FLAG_UPDATE_CURRENT))
-                .setDeleteIntent(PendingIntent.getService(this, hashCode, completeIntent, PendingIntent.FLAG_UPDATE_CURRENT))
-                .addAction(buildSnooze(Snooze2Minutes.class, "2 min", item, listKey, itemKey))
-                .addAction(buildSnooze(Snooze20Minutes.class, "20 min", item, listKey, itemKey))
-                .addAction(buildSnooze(Snooze1Day.class, "1 day", item, listKey, itemKey))
+                .setDeleteIntent(PendingIntent.getService(this, hashCode, snooze20, PendingIntent.FLAG_UPDATE_CURRENT))
+                .addAction(buildSnooze(Snooze5Minutes.class, "5 min", item, listKey, itemKey, R.drawable.ic_snooze_white_24dp))
+                .addAction(buildSnooze(CompleteNotificationService.class, "complete", item, listKey, itemKey, R.drawable.ic_done_white_24dp))
                 .setWhen(item.remindAt())
                 .build();
 

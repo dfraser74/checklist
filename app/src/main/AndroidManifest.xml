@@ -48,7 +48,7 @@
 
         <service android:name=".TodoNotificationService" />
         <service android:name=".notifications.CompleteNotificationService" />
-        <service android:name=".notifications.Snooze2Minutes" />
+        <service android:name=".notifications.Snooze5Minutes" />
         <service android:name=".notifications.Snooze20Minutes" />
         <service android:name=".notifications.Snooze1Day" />
 
